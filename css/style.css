@@ -1,12 +1,13 @@
 /* ===== THEME COLOURS (change them all here) ===== */
 :root {
-  --green: #2e7d4f; /* bright forest green */
-  --green-dark: #1f5c3a;
-  --green-light: #e8f5ec; /* soft background */
+  --green: #006b3c; /* rich main green */
   --gold: #d4a937;
+  --panel: rgba(255, 255, 255, 0.82); /* frosted glass panel */
   --text: #1c2b22;
   --white: #ffffff;
   --radius: 14px;
+  --panel-start: 0.5; /* panel starts at 50% size */
+  --hero-height: 93.4 vh; /* tweak this to move the About panel up or down */
 }
 
 /* ===== BASICS ===== */
@@ -19,8 +20,39 @@
 body {
   font-family: "Segoe UI", Roboto, Arial, sans-serif;
   color: var(--text);
-  background: var(--green-light);
+  background: var(--green) fixed; /* constant background */
   line-height: 1.6;
+  overflow-x: hidden; /* no sideways scroll while panel grows */
+}
+
+/* Soft vignette: darker, blurred edges around the whole screen */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background: radial-gradient(
+    ellipse at center,
+    transparent 55%,
+    rgba(0, 30, 15, 0.45) 100%
+  );
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  -webkit-mask-image: radial-gradient(
+    ellipse at center,
+    transparent 60%,
+    #000 100%
+  );
+  mask-image: radial-gradient(ellipse at center, transparent 60%, #000 100%);
+}
+
+/* Keep page content above the vignette */
+header,
+main,
+footer {
+  position: relative;
+  z-index: 1;
 }
 
 a {
@@ -29,27 +61,24 @@ a {
 
 h2 {
   text-align: center;
-  color: var(--green-dark);
+  color: var(--green);
   margin-bottom: 1.5rem;
   font-size: 2rem;
 }
 
 section {
-  padding: 4rem 1.5rem;
-  max-width: 1100px;
-  margin: auto;
+  padding: 3rem 1.5rem;
 }
 
 /* ===== HERO ===== */
 .hero {
-  min-height: 90vh;
+  height: var(--hero-height); /* set at the top of this file */
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: center; /* logo sits in the vertical centre */
   align-items: center;
   text-align: center;
   padding: 2rem;
-  background: linear-gradient(135deg, var(--green), #3fa36b);
   color: var(--white);
 }
 
@@ -83,6 +112,25 @@ section {
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
 }
 
+/* ===== FLOATING GLASS PANEL (everything below the hero) ===== */
+main {
+  --p: 0; /* scroll progress, set by main.js */
+  max-width: 1100px;
+  margin: 0 auto 4rem;
+  background: var(--panel);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 28px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+  transform-origin: center top;
+  /* grows from --panel-start (50%) up to full size */
+  transform: scale(
+    calc(var(--panel-start) + (1 - var(--panel-start)) * var(--p))
+  );
+  opacity: calc(0.4 + 0.6 * var(--p));
+  will-change: transform, opacity;
+}
+
 /* ===== ABOUT CARDS ===== */
 .cards {
   display: grid;
@@ -95,11 +143,7 @@ section {
   padding: 2rem;
   border-radius: var(--radius);
   border-top: 4px solid var(--gold);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
-  transition: transform 0.3s;
-}
-.card:hover {
-  transform: translateY(-6px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
 }
 .card h3 {
   color: var(--green);
@@ -125,18 +169,11 @@ section {
 .social-card {
   width: 220px;
   background: var(--white);
-  border-radius: var(--radius); /* bevelled edges */
+  border-radius: var(--radius);
   overflow: hidden;
   text-decoration: none;
   color: var(--text);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  transition:
-    transform 0.3s,
-    box-shadow 0.3s;
-}
-.social-card:hover {
-  transform: scale(1.08);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
 }
 
 .social-card img {
@@ -144,10 +181,9 @@ section {
   height: 140px;
   object-fit: cover;
   display: block;
-  /* faded corners */
   -webkit-mask-image: radial-gradient(circle, #000 65%, transparent 100%);
   mask-image: radial-gradient(circle, #000 65%, transparent 100%);
-  background: var(--green-light);
+  background: #f2f2f2;
 }
 .social-card span {
   display: block;
@@ -157,10 +193,23 @@ section {
 
 /* ===== FOOTER ===== */
 footer {
-  background: var(--green-dark);
   color: var(--white);
   text-align: center;
   padding: 1.5rem;
+}
+
+/* ===== PHONES ===== */
+@media (max-width: 700px) {
+  main {
+    margin: 0 0.75rem 3rem;
+    border-radius: 20px;
+  }
+  section {
+    padding: 2rem 1rem;
+  }
+  h2 {
+    font-size: 1.6rem;
+  }
 }
 
 /* ===== ANIMATIONS ===== */
@@ -173,4 +222,27 @@ footer {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+/* Scroll reveal (used by main.js) */
+.reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition:
+    opacity 0.7s ease,
+    transform 0.7s ease,
+    box-shadow 0.3s ease;
+}
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Hover effects */
+.card.visible:hover {
+  transform: translateY(-6px);
+}
+.social-card.visible:hover {
+  transform: scale(1.08);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.18);
 }
