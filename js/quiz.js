@@ -1,30 +1,186 @@
-// ===== QUESTIONS (add new ones to this list) =====
-// type: "single" = pick one, "multi" = pick any
-// showIf: optional rule, the question only appears when it returns true
+// ===== PAGE FADE IN (matches the fade out on the home page) =====
+const PAGE_FADE_MS = 600;
+document.body.style.opacity = "0";
+document.body.style.transition = "opacity " + PAGE_FADE_MS + "ms ease";
+requestAnimationFrame(() =>
+  requestAnimationFrame(() => {
+    document.body.style.opacity = "1";
+  }),
+);
+
+// Fade out, then go to another page
+function leaveTo(url) {
+  document.body.style.opacity = "0";
+  setTimeout(() => {
+    window.location.href = url;
+  }, PAGE_FADE_MS);
+}
+
+// Coming back with the browser's back button: show the page again
+window.addEventListener("pageshow", () => {
+  document.body.style.opacity = "1";
+});
+
+// ===== OPTION LISTS =====
 const PLAN_OPTIONS = [
-  { value: "biweekly", label: "Bi-weekly",      desc: "Pay every two weeks." },
-  { value: "monthly",  label: "Monthly",        desc: "Pay once a month." },
-  { value: "3months",  label: "Every 3 months", desc: "Pay once every three months." },
-  { value: "6months",  label: "Every 6 months", desc: "Pay twice a year." },
-  { value: "yearly",   label: "Yearly",         desc: "Pay once a year." },
+  { value: "biweekly", label: "Bi-weekly", desc: "Pay every two weeks." },
+  { value: "monthly", label: "Monthly", desc: "Pay once a month." },
+  {
+    value: "3months",
+    label: "Every 3 months",
+    desc: "Pay once every three months.",
+  },
+  { value: "6months", label: "Every 6 months", desc: "Pay twice a year." },
+  { value: "yearly", label: "Yearly", desc: "Pay once a year." },
 ];
 
+// Plans that unlock the free bonus (change this list to change the rule)
+const BONUS_PLANS = ["6months", "yearly"];
+
 const SITE_TYPE_OPTIONS = [
-  { value: "portfolio",    label: "Portfolio",                 desc: "Show off your work, such as photography, art or design." },
-  { value: "business",     label: "Small business",            desc: "For shops, salons, barbers, restaurants, mechanics and other local services." },
-  { value: "personal",     label: "Personal brand or resume",  desc: "A professional online presence for freelancers or job seekers." },
-  { value: "event",        label: "Event or landing page",     desc: "A single page for an event, a launch or a promotion." },
-  { value: "organisation", label: "Community or organisation", desc: "For churches, clubs, schools or charities." },
-  { value: "notsure",      label: "Not sure yet",              desc: "That's fine. Your other answers will help us work it out together." },
+  {
+    value: "personal",
+    label: "Personal brand and portfolio",
+    desc: "Show off your work and look professional online, for creatives, content creators, freelancers or job seekers.",
+  },
+  {
+    value: "business",
+    label: "Small business",
+    desc: "For shops, salons, barbers, restaurants, mechanics and other local services.",
+  },
+  {
+    value: "event",
+    label: "Event or landing page",
+    desc: "A single page for an event, a launch or a promotion.",
+  },
+  {
+    value: "organisation",
+    label: "Community or organisation",
+    desc: "For churches, clubs, schools or charities.",
+  },
+  {
+    value: "notsure",
+    label: "Not sure yet",
+    desc: "That's fine. Your other answers will help us work it out together.",
+  },
 ];
+
+// Recurring services are only offered to these site types
+const RECURRING_SITE_TYPES = ["business", "organisation"];
+
+// "What is the site for?" options change with the site type
+const PURPOSE_BY_TYPE = {
+  personal: [
+    {
+      value: "showWork",
+      label: "Show my work and projects",
+      desc: "A gallery or showcase of what you've done.",
+    },
+    {
+      value: "expertise",
+      label: "Share my expertise and experience",
+      desc: "Your skills, background and achievements.",
+    },
+    {
+      value: "brand",
+      label: "Build my personal brand",
+      desc: "Look professional and memorable online.",
+    },
+    {
+      value: "hired",
+      label: "Get hired or contacted",
+      desc: "Make it easy for clients or employers to reach you.",
+    },
+  ],
+  business: [
+    {
+      value: "customers",
+      label: "Get new customers",
+      desc: "Help people find your business and choose you.",
+    },
+    {
+      value: "details",
+      label: "Share services, hours and prices",
+      desc: "The details customers look for first.",
+    },
+    {
+      value: "menu",
+      label: "Show a menu or products",
+      desc: "Let people see what you offer before they visit.",
+    },
+    {
+      value: "contact",
+      label: "Make it easy to get in touch",
+      desc: "Calls, WhatsApp, email or a contact form.",
+    },
+  ],
+  event: [
+    {
+      value: "eventDetails",
+      label: "Share event details",
+      desc: "Date, time, place and what to expect.",
+    },
+    {
+      value: "signups",
+      label: "Get sign-ups through a form",
+      desc: "Collect names and contact details from attendees.",
+    },
+    {
+      value: "promote",
+      label: "Promote a launch or offer",
+      desc: "One focused page to get attention fast.",
+    },
+  ],
+  organisation: [
+    {
+      value: "news",
+      label: "Share news and events",
+      desc: "Keep members and visitors up to date.",
+    },
+    {
+      value: "info",
+      label: "Share information",
+      desc: "Who you are, what you do and how to find you.",
+    },
+    {
+      value: "members",
+      label: "Attract members or volunteers",
+      desc: "Help people join or get involved.",
+    },
+  ],
+  notsure: [
+    {
+      value: "showWork",
+      label: "Show my work",
+      desc: "A gallery or showcase of what you've done.",
+    },
+    {
+      value: "customers",
+      label: "Get new customers or enquiries",
+      desc: "Help people find you and get in touch.",
+    },
+    {
+      value: "info",
+      label: "Share information",
+      desc: "Hours, services, news or details people need.",
+    },
+    {
+      value: "brand",
+      label: "Build my brand",
+      desc: "Look professional and memorable online.",
+    },
+  ],
+};
 
 const RECOMMENDED_OPTIONS = [
   {
     value: "advancedSeo",
     label: "Advanced SEO",
     billing: "recurring",
-    desc: "Keyword research, content updates, speed tuning and ranking checks. " +
-          "Recurring payment, because search rankings need ongoing work to stay high.",
+    detail: "SEO monitoring, keyword updates and ranking checks",
+    desc:
+      "Keyword research, content updates, speed tuning and ranking checks. " +
+      "Recurring payment, because search rankings need ongoing work to stay high.",
   },
   {
     value: "analytics",
@@ -40,6 +196,10 @@ const RECOMMENDED_OPTIONS = [
   },
 ];
 
+// ===== QUESTIONS (add new ones to this list) =====
+// type: "single" = pick one (moves on automatically), "multi" = pick any (press Next)
+// options: a list, or a rule that builds the list from earlier answers
+// showIf: optional rule, the question only appears when it returns true
 const QUESTIONS = [
   {
     id: "knowledge",
@@ -48,9 +208,21 @@ const QUESTIONS = [
     help: "There are no wrong answers. This just helps me explain things at the right level.",
     required: true,
     options: [
-      { value: "none",   label: "None",   desc: "I'm new to this. Explain things to me." },
-      { value: "little", label: "Little", desc: "I know some of the basics, like what a domain is." },
-      { value: "enough", label: "Enough", desc: "I'm comfortable with hosting and websites." },
+      {
+        value: "none",
+        label: "None",
+        desc: "I'm new to this. Explain things to me.",
+      },
+      {
+        value: "little",
+        label: "Little",
+        desc: "I know some of the basics, like what a domain is.",
+      },
+      {
+        value: "enough",
+        label: "Enough",
+        desc: "I'm comfortable with hosting and websites.",
+      },
     ],
   },
   {
@@ -62,12 +234,24 @@ const QUESTIONS = [
     options: SITE_TYPE_OPTIONS,
   },
   {
+    id: "purpose",
+    type: "multi",
+    title: "What is the site for?",
+    help: "Pick everything that applies. Most sites do more than one job.",
+    required: true,
+    options: (answers) =>
+      PURPOSE_BY_TYPE[answers.siteType] || PURPOSE_BY_TYPE.notsure,
+  },
+  {
     id: "recommended",
     type: "multi",
     title: "Recommended services",
     help: "These are optional, but they help your site get found and grow. Pick any that suit you, or none.",
     required: false,
-    options: RECOMMENDED_OPTIONS,
+    options: (answers) =>
+      RECOMMENDED_OPTIONS.filter(
+        (o) => o.billing !== "recurring" || offersRecurring(answers),
+      ),
   },
   {
     id: "paymentPlan",
@@ -85,35 +269,57 @@ const QUESTIONS = [
 //          "recurring" = ongoing service, billed on the chosen plan
 // Contact form is included free, so it is not listed.
 const MANDATORY = [
-  { name: "Domain",                   amount: null, billing: "once" },
+  { name: "Domain", amount: null, billing: "once" },
   { name: "HTTPS and basic security", amount: null, billing: "once" },
-  { name: "Basic SEO",                amount: null, billing: "once" },
+  { name: "Basic SEO", amount: null, billing: "once" },
 ];
 
 // Prices for recommended services (blank until research is done)
 const PRICES = { advancedSeo: null, analytics: null, socials: null };
 
 // ===== STATE =====
+// "flagged" = steps the client pressed Next past while empty (these show red or yellow)
 const SAVE_KEY = "jdsd-quiz";
-let state = { index: 0, reached: 0, answers: {}, visited: [] };
+function freshState() {
+  return { index: 0, reached: 0, answers: {}, flagged: [] };
+}
+let state = freshState();
 let items = [];
 let shownTotal = 0;
-let onFinalScreen = false;   // true while the end screen shows
+let onFinalScreen = false; // true while the end screen shows
+let busy = false; // true while a question is sliding, so clicks wait
 
 try {
   const saved = JSON.parse(localStorage.getItem(SAVE_KEY));
   if (saved) state = saved;
-} catch (e) { /* saving is optional */ }
-if (!Array.isArray(state.visited)) state.visited = [];
+} catch (e) {
+  /* saving is optional */
+}
+if (!state.answers) state.answers = {};
+if (!Array.isArray(state.flagged)) state.flagged = [];
+delete state.visited; // old setting, no longer used
 
 function save() {
-  try { localStorage.setItem(SAVE_KEY, JSON.stringify(state)); } catch (e) {}
+  try {
+    localStorage.setItem(SAVE_KEY, JSON.stringify(state));
+  } catch (e) {}
 }
 
 // ===== HELPERS =====
+function offersRecurring(answers) {
+  return RECURRING_SITE_TYPES.includes(answers.siteType);
+}
+
 function hasRecurring(answers) {
+  if (!offersRecurring(answers)) return false;
   const chosen = answers.recommended || [];
-  return RECOMMENDED_OPTIONS.some((o) => o.billing === "recurring" && chosen.includes(o.value));
+  return RECOMMENDED_OPTIONS.some(
+    (o) => o.billing === "recurring" && chosen.includes(o.value),
+  );
+}
+
+function getOptions(q) {
+  return typeof q.options === "function" ? q.options(state.answers) : q.options;
 }
 
 function visibleQuestions() {
@@ -126,8 +332,37 @@ function isAnswered(q) {
   return a !== undefined;
 }
 
-function markVisited(q) {
-  if (q && !state.visited.includes(q.id)) state.visited.push(q.id);
+// Flag a step only if it is still empty when the client presses Next past it
+function flagIfEmpty(q) {
+  if (q && !isAnswered(q) && !state.flagged.includes(q.id))
+    state.flagged.push(q.id);
+}
+
+// An earlier answer changed: every later step goes back to grey
+function clearFlagsAfter(id) {
+  const pos = QUESTIONS.findIndex((x) => x.id === id);
+  const later = QUESTIONS.slice(pos + 1).map((x) => x.id);
+  state.flagged = state.flagged.filter((f) => !later.includes(f));
+}
+
+// Remove answers that no longer fit, e.g. after the site type changes
+function pruneAnswers() {
+  QUESTIONS.forEach((q) => {
+    const a = state.answers[q.id];
+    if (a === undefined) return;
+    const valid = getOptions(q).map((o) => o.value);
+    if (q.type === "multi") {
+      state.answers[q.id] = (Array.isArray(a) ? a : []).filter((v) =>
+        valid.includes(v),
+      );
+    } else if (!valid.includes(a)) {
+      delete state.answers[q.id];
+    }
+  });
+  if (!hasRecurring(state.answers)) {
+    delete state.answers.paymentPlan;
+    state.flagged = state.flagged.filter((id) => id !== "paymentPlan");
+  }
 }
 
 function clampPosition() {
@@ -135,6 +370,8 @@ function clampPosition() {
   if (state.index > last) state.index = last;
   if (state.reached > last) state.reached = last;
 }
+
+pruneAnswers();
 clampPosition();
 
 // ===== ELEMENTS =====
@@ -145,6 +382,16 @@ const backBtn = document.getElementById("backBtn");
 const nextBtn = document.getElementById("nextBtn");
 const toolbar = document.getElementById("toolbar");
 const counter = document.getElementById("counter");
+const quizWindow = document.querySelector(".window");
+
+// "← Home" link fades out too
+const homeLink = document.querySelector(".home-link");
+if (homeLink) {
+  homeLink.addEventListener("click", (e) => {
+    e.preventDefault();
+    leaveTo(homeLink.getAttribute("href") || "index.html");
+  });
+}
 
 // Smaller recurring line under the minimised counter (hidden when expanded)
 const recurringLine = document.createElement("div");
@@ -153,28 +400,102 @@ recurringLine.style.cssText =
   "display:none;padding:0 1.1rem 0.8rem;font-size:0.85rem;color:var(--green);font-weight:600;";
 document.getElementById("counterHead").after(recurringLine);
 
+// "Start over" button, top right of the question window
+quizWindow.style.position = "relative";
+const restartBtn = document.createElement("button");
+restartBtn.id = "restartBtn";
+restartBtn.textContent = "Start over";
+restartBtn.style.cssText =
+  "position:absolute;top:1.6rem;right:2rem;background:none;border:2px solid var(--gold);" +
+  "color:var(--text);font:inherit;font-size:0.85rem;font-weight:600;padding:0.35rem 0.9rem;" +
+  "border-radius:50px;cursor:pointer;";
+restartBtn.addEventListener("click", restartQuiz);
+quizWindow.appendChild(restartBtn);
+
+// ===== THEMED CONFIRM BOX (replaces the browser pop-up) =====
+// Returns a promise: true if they confirm, false if they cancel
+function showConfirm(title, message, confirmText) {
+  return new Promise((resolve) => {
+    const overlay = document.createElement("div");
+    overlay.style.cssText =
+      "position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;" +
+      "padding:1rem;background:rgba(0,30,15,0.55);backdrop-filter:blur(6px);" +
+      "-webkit-backdrop-filter:blur(6px);opacity:0;transition:opacity 0.2s ease;";
+    overlay.innerHTML =
+      '<div role="dialog" aria-modal="true" style="background:var(--white);border-top:4px solid var(--gold);' +
+      "border-radius:20px;padding:1.75rem;max-width:420px;width:100%;" +
+      'box-shadow:0 20px 50px rgba(0,0,0,0.35);transform:scale(0.92);transition:transform 0.2s ease;">' +
+      '<h2 style="color:var(--green);margin-bottom:0.5rem">' +
+      title +
+      "</h2>" +
+      '<p style="margin-bottom:1.5rem;opacity:0.85">' +
+      message +
+      "</p>" +
+      '<div style="display:flex;justify-content:flex-end;gap:0.75rem;flex-wrap:wrap">' +
+      '<button class="nav-btn" data-choice="no">Cancel</button>' +
+      '<button class="nav-btn primary" data-choice="yes">' +
+      confirmText +
+      "</button>" +
+      "</div>" +
+      "</div>";
+    document.body.appendChild(overlay);
+    const box = overlay.firstChild;
+
+    // Fade and scale in
+    requestAnimationFrame(() => {
+      overlay.style.opacity = "1";
+      box.style.transform = "scale(1)";
+    });
+
+    function close(result) {
+      overlay.style.opacity = "0";
+      box.style.transform = "scale(0.92)";
+      document.removeEventListener("keydown", onKey);
+      setTimeout(() => {
+        overlay.remove();
+        resolve(result);
+      }, 200);
+    }
+
+    function onKey(e) {
+      if (e.key === "Escape") close(false);
+    }
+
+    overlay.addEventListener("click", (e) => {
+      if (e.target === overlay) return close(false); // clicked outside the box
+      const choice = e.target.closest("[data-choice]");
+      if (choice) close(choice.dataset.choice === "yes");
+    });
+    document.addEventListener("keydown", onKey);
+    overlay.querySelector('[data-choice="no"]').focus();
+  });
+}
+
 // ===== TOOLBAR =====
-// Step colours: green = done, grey = not reached yet,
-// red = reached but required and empty, yellow = reached but optional and empty
+// Step colours: green = done, grey = not answered yet (including the current step),
+// red = Next pressed while empty and required, yellow = Next pressed while empty and optional
 function renderToolbar() {
   const visible = visibleQuestions();
   stepsEl.innerHTML = "";
   for (let i = 0; i <= state.reached && i < visible.length; i++) {
     const q = visible[i];
     const li = document.createElement("li");
-    const visited = state.visited.includes(q.id);
 
     let status;
     if (isAnswered(q)) status = "done";
-    else if (!visited) status = "pending";
-    else status = q.required ? "required" : "optional";
+    else if (state.flagged.includes(q.id))
+      status = q.required ? "required" : "optional";
+    else status = "pending";
 
     li.className = "step " + status;
     if (i === state.index && !onFinalScreen) li.classList.add("current");
     li.dataset.index = i;
-    li.innerHTML = '<span class="step-dot"></span><span>' + q.title.replace(/\?$/, "") + "</span>";
+    li.innerHTML =
+      '<span class="step-dot"></span><span>' +
+      q.title.replace(/\?$/, "") +
+      "</span>";
 
-    // Neutral grey for steps not reached yet
+    // Neutral grey for steps not answered yet
     if (status === "pending") {
       li.style.borderLeftColor = "#c9d3ce";
       li.querySelector(".step-dot").style.background = "#c9d3ce";
@@ -190,34 +511,53 @@ function renderToolbar() {
 // ===== QUESTION WINDOW =====
 function isChosen(q, value) {
   const a = state.answers[q.id];
-  return q.type === "multi" ? Array.isArray(a) && a.includes(value) : a === value;
+  return q.type === "multi"
+    ? Array.isArray(a) && a.includes(value)
+    : a === value;
 }
 
 function renderQuestion(direction) {
   const q = visibleQuestions()[state.index];
-  markVisited(q);
-  save();
 
   stage.innerHTML =
-    '<div class="q-card"><h1>' + q.title + '</h1><p class="help">' + q.help + "</p>" +
+    '<div class="q-card"><h1>' +
+    q.title +
+    '</h1><p class="help">' +
+    q.help +
+    "</p>" +
     '<div class="options">' +
-    q.options.map((o) => {
-      const badge = o.billing
-        ? ' <span class="tag" style="font-size:0.75rem;color:var(--gold)">' +
-          (o.billing === "recurring" ? "Recurring" : "One-time") + " · Recommended</span>"
-        : "";
-      return '<button class="option' + (isChosen(q, o.value) ? " selected" : "") +
-        '" data-value="' + o.value + '"><strong>' + o.label + badge + "</strong>" + o.desc + "</button>";
-    }).join("") +
+    getOptions(q)
+      .map((o) => {
+        const badge = o.billing
+          ? ' <span class="tag" style="font-size:0.75rem;color:var(--gold)">' +
+            (o.billing === "recurring" ? "Recurring" : "One-time") +
+            " · Recommended</span>"
+          : "";
+        return (
+          '<button class="option' +
+          (isChosen(q, o.value) ? " selected" : "") +
+          '" data-value="' +
+          o.value +
+          '"><strong>' +
+          o.label +
+          badge +
+          "</strong>" +
+          o.desc +
+          "</button>"
+        );
+      })
+      .join("") +
     "</div></div>";
 
   stage.classList.remove("in-left", "in-right", "out-left", "out-right");
   void stage.offsetWidth; // restart the animation
   stage.classList.add(direction === "back" ? "in-left" : "in-right");
 
-  stage.querySelectorAll(".option").forEach((btn) =>
-    btn.addEventListener("click", () => answer(q, btn.dataset.value))
-  );
+  stage
+    .querySelectorAll(".option")
+    .forEach((btn) =>
+      btn.addEventListener("click", () => answer(q, btn.dataset.value)),
+    );
 
   // Back is always usable: on the first question it returns home
   backBtn.disabled = false;
@@ -227,7 +567,9 @@ function renderQuestion(direction) {
 }
 
 function answer(q, value) {
+  if (busy) return;
   const before = visibleQuestions().map((x) => x.id);
+  const previous = JSON.stringify(state.answers[q.id]);
 
   if (q.type === "multi") {
     const list = Array.isArray(state.answers[q.id]) ? state.answers[q.id] : [];
@@ -238,46 +580,82 @@ function answer(q, value) {
     state.answers[q.id] = value;
   }
 
-  // No recurring services left: drop the payment plan answer and its visit
-  if (!hasRecurring(state.answers)) {
-    delete state.answers.paymentPlan;
-    state.visited = state.visited.filter((id) => id !== "paymentPlan");
-  }
+  // Answer changed: later steps reset to grey
+  if (JSON.stringify(state.answers[q.id]) !== previous) clearFlagsAfter(q.id);
+
+  pruneAnswers();
 
   // A question was just unlocked: add it to the toolbar straight away (grey)
-  const after = visibleQuestions();
-  after.forEach((x, i) => {
+  visibleQuestions().forEach((x, i) => {
     if (!before.includes(x.id) && i > state.reached) state.reached = i;
   });
 
   save();
-  stage.querySelectorAll(".option").forEach((b) =>
-    b.classList.toggle("selected", isChosen(q, b.dataset.value))
-  );
+  stage
+    .querySelectorAll(".option")
+    .forEach((b) =>
+      b.classList.toggle("selected", isChosen(q, b.dataset.value)),
+    );
   clampPosition();
   renderToolbar();
   updateCounter();
+
+  // Pick-one questions move on by themselves after a short pause
+  if (q.type === "single") {
+    busy = true;
+    setTimeout(() => {
+      busy = false;
+      goNext();
+    }, 350);
+  }
 }
 
 // ===== NAVIGATION =====
 function swapTo(index, direction) {
+  // Only moving forward checks the step being left
+  if (!onFinalScreen && direction === "next")
+    flagIfEmpty(visibleQuestions()[state.index]);
+
+  busy = true;
   stage.classList.remove("in-left", "in-right");
   stage.classList.add(direction === "back" ? "out-right" : "out-left");
   setTimeout(() => {
     onFinalScreen = false;
     state.index = index;
     state.reached = Math.max(state.reached, index);
-    renderQuestion(direction);   // marks the step as visited
+    save();
+    renderQuestion(direction);
     renderToolbar();
+    busy = false;
   }, 200);
 }
 
 function goTo(i) {
+  if (busy) return;
   if (i === state.index && !onFinalScreen) return;
   swapTo(i, i < state.index || onFinalScreen ? "back" : "next");
 }
 
+function goNext() {
+  const visible = visibleQuestions();
+  const q = visible[state.index];
+  if (q.required && !isAnswered(q)) {
+    pulseMissing();
+    return;
+  }
+  if (state.index < visible.length - 1) {
+    swapTo(state.index + 1, "next");
+  } else {
+    showEndScreen();
+  }
+}
+
 function pulseMissing() {
+  // Tried to move on without answering: this step now shows red
+  flagIfEmpty(visibleQuestions()[state.index]);
+  save();
+  renderToolbar();
+
   const card = stage.querySelector(".q-card");
   const step = stepsEl.querySelector('.step[data-index="' + state.index + '"]');
   [card, step].forEach((el) => {
@@ -291,56 +669,213 @@ function pulseMissing() {
   if (window.innerWidth <= 800) toolbar.classList.add("open");
 }
 
+// ===== START OVER =====
+async function restartQuiz() {
+  if (busy) return;
+  const ok = await showConfirm(
+    "Start over?",
+    "This clears all of your answers and takes you back to the first question.",
+    "Yes, start over",
+  );
+  if (!ok) return;
+  try {
+    localStorage.removeItem(SAVE_KEY);
+  } catch (e) {}
+
+  busy = true;
+  stage.classList.remove("in-left", "in-right");
+  stage.classList.add("out-right");
+  setTimeout(() => {
+    state = freshState();
+    onFinalScreen = false;
+    toolbar.classList.remove("open");
+    renderQuestion("back");
+    renderToolbar();
+    updateCounter();
+    busy = false;
+  }, 200);
+}
+
+// Next button: on the end screen it becomes "Start over"
 nextBtn.addEventListener("click", () => {
-  const visible = visibleQuestions();
-  const q = visible[state.index];
-  if (q.required && !isAnswered(q)) {
-    pulseMissing();
-    return;
-  }
-  if (state.index < visible.length - 1) {
-    swapTo(state.index + 1, "next");
-  } else {
-    showEndScreen();
-  }
+  if (busy) return;
+  if (onFinalScreen) restartQuiz();
+  else goNext();
 });
 
 backBtn.addEventListener("click", () => {
+  if (busy) return;
   if (onFinalScreen) {
-    swapTo(state.index, "back");          // back to the last question
+    swapTo(state.index, "back"); // back to the last question
   } else if (state.index > 0) {
-    swapTo(state.index - 1, "back");      // previous question
+    swapTo(state.index - 1, "back"); // previous question
   } else {
-    window.location.href = "index.html";  // first question: go home
+    leaveTo("index.html"); // first question: fade out and go home
   }
 });
 
+// ===== END SCREEN: what's included, built from the answers =====
+function sectionHead(title, sub) {
+  return (
+    '<h3 style="color:var(--green);margin:1.1rem 0 0.4rem">' +
+    title +
+    (sub
+      ? ' <span style="font-size:0.85rem;font-weight:600;opacity:0.7">(' +
+        sub +
+        ")</span>"
+      : "") +
+    "</h3>"
+  );
+}
+
+function goldLine() {
+  return '<div style="height:2px;background:var(--gold);border-radius:2px;margin:1rem 0 0.2rem"></div>';
+}
+
+function listOf(lines) {
+  return (
+    '<ul style="padding-left:1.2rem;display:grid;gap:0.4rem">' +
+    lines.map((t) => "<li>" + t + "</li>").join("") +
+    "</ul>"
+  );
+}
+
+function tagText(tag) {
+  return (
+    ' <span style="font-size:0.8rem;color:var(--gold);font-weight:600">' +
+    tag +
+    "</span>"
+  );
+}
+
+// Gold-edged warning box for things NOT covered by the primary payment
+function noticeBox(html) {
+  return (
+    '<div style="margin-top:0.9rem;padding:0.75rem 0.9rem;background:#fbf4e2;' +
+    'border-left:4px solid var(--gold);border-radius:10px;font-size:0.9rem">' +
+    html +
+    "</div>"
+  );
+}
+
+function bonusLines() {
+  const lines = [];
+  const plan = state.answers.paymentPlan;
+  if (plan && BONUS_PLANS.includes(plan)) {
+    lines.push(
+      "<strong>Plan bonus:</strong> your " +
+        planLabel().toLowerCase() +
+        " plan unlocks one free event or seasonal update.",
+    );
+  } else if (plan) {
+    lines.push(
+      "<strong>Plan bonus:</strong> switch to a 6-month or yearly plan to unlock one free event or seasonal update.",
+    );
+  }
+  lines.push(
+    "<strong>Returning customers</strong> get a discount on future projects and/or updates.",
+  );
+  return lines;
+}
+
+function buildSummary() {
+  const once = items.filter((it) => it.billing === "once");
+  const recurring = items.filter((it) => it.billing === "recurring");
+
+  // 1. Primary payment
+  let html =
+    sectionHead("Primary payment", "one-time fee") +
+    listOf(
+      once
+        .map((it) => "<strong>" + it.name + "</strong>" + tagText(it.tag))
+        .concat([
+          "<strong>Contact form on your site</strong>" + tagText("Included"),
+          "<strong>Two revisions</strong>" + tagText("Included"),
+        ]),
+    );
+
+  // Not part of the primary payment
+  html += noticeBox(
+    "<strong>Not included in the primary payment:</strong> extra revisions or bigger changes " +
+      "are quoted separately and may be subject to additional fees.",
+  );
+
+  // 2. Recurring services (or a note about future updates)
+  html += goldLine();
+  if (recurring.length) {
+    html +=
+      sectionHead("Recurring services", planLabel()) +
+      listOf(
+        recurring
+          .map((it) => {
+            const o = RECOMMENDED_OPTIONS.find((x) => x.label === it.name);
+            return (
+              "<strong>" +
+              it.name +
+              "</strong>" +
+              (o && o.detail ? ": " + o.detail : "") +
+              tagText(it.tag)
+            );
+          })
+          .concat([
+            "<strong>Event and seasonal updates</strong> can be added to your plan when you need them.",
+          ]),
+      );
+  } else {
+    html +=
+      sectionHead("Future updates", "optional") +
+      listOf([
+        "Events or seasonal changes can be added later as a one-off job, or done regularly with a subscription.",
+      ]);
+  }
+
+  // 3. Bonuses
+  html += goldLine() + sectionHead("Bonuses") + listOf(bonusLines());
+  return html;
+}
+
 function showEndScreen() {
+  flagIfEmpty(visibleQuestions()[state.index]);
+  busy = true;
   stage.classList.remove("in-left", "in-right");
   stage.classList.add("out-left");
   setTimeout(() => {
     onFinalScreen = true;
+    save();
     stage.innerHTML =
       '<div class="q-card"><h1>Your answers are saved</h1>' +
-      '<p class="help">Check your estimate in the corner, or use the steps on the left to change any answer.</p></div>';
+      '<p class="help">Check your estimate in the bottom right corner, or refer to the sidebar on your left to revisit your answers.</p>' +
+      '<h2 style="color:var(--green);font-size:1.3rem;margin-top:1rem">What\'s included</h2>' +
+      buildSummary() +
+      "</div>";
     stage.classList.remove("out-left");
     void stage.offsetWidth;
     stage.classList.add("in-right");
     backBtn.disabled = false;
     backBtn.textContent = "Back";
-    nextBtn.disabled = true;
+    nextBtn.disabled = false;
+    nextBtn.textContent = "Start over"; // Next becomes Start over on the last page
     renderToolbar();
+    busy = false;
   }, 200);
 }
 
 // ===== PRICE COUNTER =====
-function format(n) { return "$" + n.toLocaleString(); }
+function format(n) {
+  return "$" + n.toLocaleString();
+}
 
 function buildItems() {
   const list = MANDATORY.map((m) => ({ ...m, tag: "Mandatory" }));
   (state.answers.recommended || []).forEach((value) => {
     const o = RECOMMENDED_OPTIONS.find((x) => x.value === value);
-    if (o) list.push({ name: o.label, amount: PRICES[value], billing: o.billing, tag: "Recommended" });
+    if (o)
+      list.push({
+        name: o.label,
+        amount: PRICES[value],
+        billing: o.billing,
+        tag: "Recommended",
+      });
   });
   return list;
 }
@@ -353,7 +888,9 @@ function totalFor(billing) {
 
 function recurringAmount() {
   const recurring = items.filter((it) => it.billing === "recurring");
-  return recurring.some((it) => it.amount === null) ? "TBD" : format(totalFor("recurring"));
+  return recurring.some((it) => it.amount === null)
+    ? "TBD"
+    : format(totalFor("recurring"));
 }
 
 function planLabel() {
@@ -364,11 +901,19 @@ function planLabel() {
 function rowsFor(billing, small) {
   return items
     .filter((it) => it.billing === billing)
-    .map((it) =>
-      "<li" + (small ? ' style="font-size:0.85rem"' : "") + "><span>" + it.name +
-      ' <span class="tag">' + it.tag + "</span></span><span>" +
-      (it.amount === null ? "TBD" : format(it.amount)) + "</span></li>"
-    ).join("");
+    .map(
+      (it) =>
+        "<li" +
+        (small ? ' style="font-size:0.85rem"' : "") +
+        "><span>" +
+        it.name +
+        ' <span class="tag">' +
+        it.tag +
+        "</span></span><span>" +
+        (it.amount === null ? "TBD" : format(it.amount)) +
+        "</span></li>",
+    )
+    .join("");
 }
 
 function renderBreakdown() {
@@ -383,9 +928,13 @@ function renderBreakdown() {
     html +=
       '<li style="border:0;padding:0;margin:0.9rem 0 0.4rem;height:2px;background:var(--gold);border-radius:2px"></li>' +
       '<li style="border:0;align-items:center">' +
-        '<span><strong style="color:var(--green)">Recurring payments</strong>' +
-        '<br><span style="font-size:0.8rem;opacity:0.75">' + planLabel() + "</span></span>" +
-        '<span style="font-size:1.2rem;font-weight:700;color:var(--green)">' + recurringAmount() + "</span>" +
+      '<span><strong style="color:var(--green)">Recurring payments</strong>' +
+      '<br><span style="font-size:0.8rem;opacity:0.75">' +
+      planLabel() +
+      "</span></span>" +
+      '<span style="font-size:1.2rem;font-weight:700;color:var(--green)">' +
+      recurringAmount() +
+      "</span>" +
       "</li>" +
       rowsFor("recurring", true);
   }
@@ -397,7 +946,8 @@ function updateRecurringLine() {
   const hasRec = items.some((it) => it.billing === "recurring");
   const open = counter.classList.contains("open");
   if (hasRec && !open) {
-    recurringLine.textContent = "Recurring payment: " + recurringAmount() + " (" + planLabel() + ")";
+    recurringLine.textContent =
+      "Recurring payment: " + recurringAmount() + " (" + planLabel() + ")";
     recurringLine.style.display = "block";
   } else {
     recurringLine.style.display = "none";
@@ -429,7 +979,8 @@ function animateTotal() {
 
 function updateCounter() {
   items = buildItems();
-  counter.querySelector(".counter-label").textContent = "Estimate (Primary payment)";
+  counter.querySelector(".counter-label").textContent =
+    "Estimate (Primary payment)";
   renderBreakdown();
   updateRecurringLine();
   animateTotal();
@@ -449,7 +1000,7 @@ window.setPrice = (key, amount) => {
 document.getElementById("counterHead").addEventListener("click", () => {
   const open = counter.classList.toggle("open");
   document.getElementById("counterHead").setAttribute("aria-expanded", open);
-  updateRecurringLine();   // hide the small line while expanded
+  updateRecurringLine(); // hide the small line while expanded
 });
 
 // ===== PHONE TOOLBAR TOGGLE =====
