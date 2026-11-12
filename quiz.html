@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Get Your Estimate | J D Style and Design</title>
+    <link rel="stylesheet" href="css/quiz.css" />
+  </head>
+  <body>
+    <div class="app">
+      <!-- Left progress toolbar (becomes a top bar on phones) -->
+      <aside class="toolbar" id="toolbar">
+        <button class="toolbar-toggle" id="toolbarToggle" aria-expanded="false">
+          Steps
+        </button>
+        <div class="progress">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+        <ol class="steps" id="steps"></ol>
+      </aside>
+
+      <!-- Centre window: questions appear here -->
+      <section class="window">
+        <a class="home-link" href="index.html">&larr; Home</a>
+        <div class="stage" id="stage"></div>
+        <div class="nav">
+          <button class="nav-btn" id="backBtn">Back</button>
+          <button class="nav-btn primary" id="nextBtn">Next</button>
+        </div>
+      </section>
+    </div>
+
+    <!-- Price counter, bottom corner -->
+    <div class="counter" id="counter">
+      <button class="counter-head" id="counterHead" aria-expanded="false">
+        <span class="counter-label">Estimate</span>
+        <span class="counter-total" id="counterTotal">$0</span>
+        <span class="chev">&#9650;</span>
+      </button>
+      <div class="counter-body" id="counterBody">
+        <ul id="breakdown"></ul>
+        <p class="counter-note">Prices may fluctuate or be negotiated.</p>
+      </div>
+    </div>
+
+    <script src="js/quiz.js"></script>
+  </body>
+</html>

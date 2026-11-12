@@ -36,8 +36,8 @@ window.addEventListener("scroll", updatePanel, { passive: true });
 window.addEventListener("resize", updatePanel);
 updatePanel();
 
-// Estimate button: placeholder until the quiz page exists
+// Estimate button opens the quiz page
 document.getElementById("startQuiz").addEventListener("click", (e) => {
   e.preventDefault();
-  alert("The quiz page is coming soon!");
+  window.location.href = "quiz.html";
 });
