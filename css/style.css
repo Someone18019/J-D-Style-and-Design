@@ -7,7 +7,7 @@
   --white: #ffffff;
   --radius: 14px;
   --panel-start: 0.5; /* panel starts at 50% size */
-  --hero-height: 93.4 vh; /* tweak this to move the About panel up or down */
+  --hero-height: 93.4vh; /* tweak this to move the About panel up or down */
 }
 
 /* ===== BASICS ===== */
