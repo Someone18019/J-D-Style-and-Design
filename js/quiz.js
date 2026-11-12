@@ -28,11 +28,33 @@ const PLAN_OPTIONS = [
   {
     value: "3months",
     label: "Every 3 months",
-    desc: "Pay once every three months.",
+    desc: "Pay once every three months, with a discount.",
   },
-  { value: "6months", label: "Every 6 months", desc: "Pay twice a year." },
-  { value: "yearly", label: "Yearly", desc: "Pay once a year." },
+  {
+    value: "6months",
+    label: "Every 6 months",
+    desc: "Pay twice a year, with a bigger discount.",
+  },
+  {
+    value: "yearly",
+    label: "Yearly",
+    desc: "Pay once a year, with a capped price.",
+  },
 ];
+
+// How many months each payment covers (bi-weekly = half a month)
+const PLAN_MONTHS = {
+  biweekly: 0.5,
+  monthly: 1,
+  "3months": 3,
+  "6months": 6,
+  yearly: 12,
+};
+
+// Plan discounts and caps (Jamaican dollars)
+// 3 months: 27,000 - 2,000 = 25,000 | 6 months: 54,000 - 4,000 = 50,000 | yearly capped at 100,000
+const PLAN_DISCOUNTS = { "3months": 2000, "6months": 4000 };
+const PLAN_CAPS = { yearly: 100000 };
 
 // Plans that unlock the free bonus (change this list to change the rule)
 const BONUS_PLANS = ["6months", "yearly"];
@@ -67,6 +89,9 @@ const SITE_TYPE_OPTIONS = [
 
 // Recurring services are only offered to these site types
 const RECURRING_SITE_TYPES = ["business", "organisation"];
+
+// These site types get a single home page build
+const ONE_PAGE_TYPES = ["event", "organisation"];
 
 // "What is the site for?" options change with the site type
 const PURPOSE_BY_TYPE = {
@@ -257,25 +282,36 @@ const QUESTIONS = [
     id: "paymentPlan",
     type: "single",
     title: "How would you like to pay for recurring services?",
-    help: "Recurring services are billed separately from your website build. Pick the plan that suits you.",
+    help: "Recurring services are billed separately from your website build and start after your first month. Pick the plan that suits you.",
     required: true,
     options: PLAN_OPTIONS,
     showIf: (answers) => hasRecurring(answers),
   },
 ];
 
-// ===== MANDATORY SERVICES (prices stay blank until research is done) =====
+// ===== PLACEHOLDER PRICES (Jamaican dollars, based on 2026 market ranges) =====
+// Swap these for your final prices later.
+
+// Base website build, by site type
+const BUILD_PRICES = {
+  personal: 40000,
+  business: 60000,
+  event: 30000,
+  organisation: 50000,
+  notsure: 45000,
+};
+
 // billing: "once" = part of the primary payment (website build)
-//          "recurring" = ongoing service, billed on the chosen plan
+//          "recurring" = ongoing service, priced per month, billed on the chosen plan
 // Contact form is included free, so it is not listed.
 const MANDATORY = [
-  { name: "Domain", amount: null, billing: "once" },
-  { name: "HTTPS and basic security", amount: null, billing: "once" },
-  { name: "Basic SEO", amount: null, billing: "once" },
+  { name: "Domain (1 year)", amount: 3000, billing: "once" },
+  { name: "HTTPS and basic security", amount: 5000, billing: "once" },
+  { name: "Basic SEO", amount: 8000, billing: "once" },
 ];
 
-// Prices for recommended services (blank until research is done)
-const PRICES = { advancedSeo: null, analytics: null, socials: null };
+// Recommended services (Advanced SEO is a monthly price)
+const PRICES = { advancedSeo: 9000, analytics: 5000, socials: 10000 };
 
 // ===== STATE =====
 // "flagged" = steps the client pressed Next past while empty (these show red or yellow)
@@ -818,6 +854,7 @@ function buildSummary() {
             );
           })
           .concat([
+            "Recurring payments start after your first month and are billed separately from the primary payment.",
             "<strong>Event and seasonal updates</strong> can be added to your plan when you need them.",
           ]),
       );
@@ -862,11 +899,31 @@ function showEndScreen() {
 
 // ===== PRICE COUNTER =====
 function format(n) {
-  return "$" + n.toLocaleString();
+  return "J$" + n.toLocaleString();
+}
+
+function roundHundred(n) {
+  return Math.round(n / 100) * 100;
 }
 
 function buildItems() {
-  const list = MANDATORY.map((m) => ({ ...m, tag: "Mandatory" }));
+  const list = [];
+
+  // Base website build, once the site type is known
+  const type = state.answers.siteType;
+  if (type && BUILD_PRICES[type] !== undefined) {
+    list.push({
+      name: ONE_PAGE_TYPES.includes(type)
+        ? "Website build (home page)"
+        : "Website build (home page plus one or two additional pages)",
+      amount: BUILD_PRICES[type],
+      billing: "once",
+      tag: "Base",
+    });
+  }
+
+  MANDATORY.forEach((m) => list.push({ ...m, tag: "Mandatory" }));
+
   (state.answers.recommended || []).forEach((value) => {
     const o = RECOMMENDED_OPTIONS.find((x) => x.value === value);
     if (o)
@@ -886,11 +943,19 @@ function totalFor(billing) {
     .reduce((sum, it) => sum + (it.amount || 0), 0);
 }
 
+// Recurring total for the chosen plan:
+// monthly price x months, minus any discount, capped, rounded to the nearest hundred
 function recurringAmount() {
   const recurring = items.filter((it) => it.billing === "recurring");
-  return recurring.some((it) => it.amount === null)
-    ? "TBD"
-    : format(totalFor("recurring"));
+  if (recurring.some((it) => it.amount === null)) return "TBD";
+  const monthly = totalFor("recurring");
+  const plan = state.answers.paymentPlan;
+  const months = PLAN_MONTHS[plan];
+  if (!months) return format(monthly) + "/mo";
+
+  let amount = monthly * months - (PLAN_DISCOUNTS[plan] || 0);
+  if (PLAN_CAPS[plan]) amount = Math.min(amount, PLAN_CAPS[plan]);
+  return format(roundHundred(amount));
 }
 
 function planLabel() {
@@ -910,7 +975,9 @@ function rowsFor(billing, small) {
         ' <span class="tag">' +
         it.tag +
         "</span></span><span>" +
-        (it.amount === null ? "TBD" : format(it.amount)) +
+        (it.amount === null
+          ? "TBD"
+          : format(it.amount) + (billing === "recurring" ? "/mo" : "")) +
         "</span></li>",
     )
     .join("");
@@ -931,13 +998,18 @@ function renderBreakdown() {
       '<span><strong style="color:var(--green)">Recurring payments</strong>' +
       '<br><span style="font-size:0.8rem;opacity:0.75">' +
       planLabel() +
-      "</span></span>" +
+      ", starts after the first month</span></span>" +
       '<span style="font-size:1.2rem;font-weight:700;color:var(--green)">' +
       recurringAmount() +
       "</span>" +
       "</li>" +
       rowsFor("recurring", true);
   }
+
+  // 3. Placeholder note
+  html +=
+    '<li style="border:0;font-size:0.75rem;opacity:0.65;padding-top:0.6rem">' +
+    "Placeholder prices in Jamaican dollars, based on 2026 market ranges.</li>";
 
   document.getElementById("breakdown").innerHTML = html;
 }
@@ -986,10 +1058,11 @@ function updateCounter() {
   animateTotal();
 }
 
-// Testing only: set a price from the browser console
-// Example: setPrice("advancedSeo", 100)
+// Testing only: change a price from the browser console
+// Example: setPrice("advancedSeo", 12000)
 window.setPrice = (key, amount) => {
   if (key in PRICES) PRICES[key] = amount;
+  else if (key in BUILD_PRICES) BUILD_PRICES[key] = amount;
   else {
     const m = MANDATORY.find((x) => x.name === key);
     if (m) m.amount = amount;

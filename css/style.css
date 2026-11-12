@@ -1,6 +1,6 @@
 /* ===== THEME COLOURS (change them all here) ===== */
 :root {
-  --green: #006b3c; /* rich main green */
+  --green: #0a462c; /* rich main green | was #006b3c */
   --gold: #d4a937;
   --panel: rgba(255, 255, 255, 0.82); /* frosted glass panel */
   --text: #1c2b22;
