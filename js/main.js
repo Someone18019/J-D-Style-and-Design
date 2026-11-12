@@ -36,8 +36,27 @@ window.addEventListener("scroll", updatePanel, { passive: true });
 window.addEventListener("resize", updatePanel);
 updatePanel();
 
-// Estimate button opens the quiz page
+// Estimate button: fade the page out, then open the quiz
+const PAGE_FADE_MS = 600; // raise this for a longer pause
+
 document.getElementById("startQuiz").addEventListener("click", (e) => {
   e.preventDefault();
-  window.location.href = "quiz.html";
+  const target = e.currentTarget.getAttribute("href") || "quiz.html";
+  document.body.style.transition =
+    "opacity " +
+    PAGE_FADE_MS +
+    "ms ease, transform " +
+    PAGE_FADE_MS +
+    "ms ease";
+  document.body.style.opacity = "0";
+  document.body.style.transform = "translateY(-20px)";
+  setTimeout(() => {
+    window.location.href = target;
+  }, PAGE_FADE_MS);
+});
+
+// If the visitor comes back with the browser's back button, show the page again
+window.addEventListener("pageshow", () => {
+  document.body.style.opacity = "";
+  document.body.style.transform = "";
 });
