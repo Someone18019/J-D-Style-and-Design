@@ -21,6 +21,38 @@ window.addEventListener("pageshow", () => {
   document.body.style.opacity = "1";
 });
 
+// ===== WEB TERMS (explained to newer clients) =====
+const TERMS = [
+  {
+    value: "domain",
+    label: "Domain",
+    explain:
+      "Your website's address, like yourname.com. It's what people type in to find you. " +
+      "Domains are rented yearly, so they need to be renewed each year.",
+  },
+  {
+    value: "https",
+    label: "HTTPS and basic security",
+    explain:
+      "The padlock next to your web address. It keeps information sent through your site private " +
+      "and shows visitors your site is safe. Browsers warn people away from sites without it.",
+  },
+  {
+    value: "seo",
+    label: "Basic SEO",
+    explain:
+      "Search engine optimisation. It sets your site up so that when people search Google " +
+      "for things you offer, your site has a better chance of showing up.",
+  },
+  {
+    value: "analytics",
+    label: "Google Analytics",
+    explain:
+      "A free Google tool that shows how many people visit your site, which pages they look at " +
+      "and where they came from, so you can see what's working.",
+  },
+];
+
 // ===== OPTION LISTS =====
 const PLAN_OPTIONS = [
   { value: "biweekly", label: "Bi-weekly", desc: "Pay every two weeks." },
@@ -93,6 +125,14 @@ const RECURRING_SITE_TYPES = ["business", "organisation"];
 // These site types get a single home page build
 const ONE_PAGE_TYPES = ["event", "organisation"];
 
+// These site types get a free subdomain on my domain instead of buying a domain
+const SUBDOMAIN_TYPES = ["event"];
+
+// Community discount: these organisation kinds get money off the website build
+const DISCOUNT_ORG_KINDS = ["church", "school", "club", "students"];
+const COMMUNITY_DISCOUNT = 0.3; // 30% off the build
+const COMMUNITY_DISCOUNT_ONGOING = 0.4; // 40% off if they also take an ongoing plan
+
 // "What is the site for?" options change with the site type
 const PURPOSE_BY_TYPE = {
   personal: [
@@ -116,6 +156,16 @@ const PURPOSE_BY_TYPE = {
       label: "Get hired or contacted",
       desc: "Make it easy for clients or employers to reach you.",
     },
+    {
+      value: "links",
+      label: "Link all my socials in one place",
+      desc: "One page that points to your TikTok, Instagram, YouTube and more.",
+    },
+    {
+      value: "postMyself",
+      label: "Post updates and photos myself",
+      desc: "A profile-style page where you can add posts and photos yourself, like a social media page.",
+    },
   ],
   business: [
     {
@@ -138,6 +188,11 @@ const PURPOSE_BY_TYPE = {
       label: "Make it easy to get in touch",
       desc: "Calls, WhatsApp, email or a contact form.",
     },
+    {
+      value: "hiring",
+      label: "Hire staff",
+      desc: "A hiring page that lists open jobs and how to apply.",
+    },
   ],
   event: [
     {
@@ -154,6 +209,16 @@ const PURPOSE_BY_TYPE = {
       value: "promote",
       label: "Promote a launch or offer",
       desc: "One focused page to get attention fast.",
+    },
+    {
+      value: "volunteers",
+      label: "Call for volunteers or attendees",
+      desc: "Let people know you need helpers, or get people to show up.",
+    },
+    {
+      value: "schedule",
+      label: "Share a schedule or line-up",
+      desc: "Times, speakers, performers or activities.",
     },
   ],
   organisation: [
@@ -172,8 +237,23 @@ const PURPOSE_BY_TYPE = {
       label: "Attract members or volunteers",
       desc: "Help people join or get involved.",
     },
+    {
+      value: "times",
+      label: "Share service or meeting times",
+      desc: "When and where people can join you.",
+    },
+    {
+      value: "support",
+      label: "Share how to donate or support",
+      desc: "Let people know how they can help your cause.",
+    },
   ],
   notsure: [
+    {
+      value: "aboutMe",
+      label: "Show who I am",
+      desc: "A personal page about you and what you do.",
+    },
     {
       value: "showWork",
       label: "Show my work",
@@ -187,7 +267,12 @@ const PURPOSE_BY_TYPE = {
     {
       value: "info",
       label: "Share information",
-      desc: "Hours, services, news or details people need.",
+      desc: "Hours, services or details people need.",
+    },
+    {
+      value: "news",
+      label: "Share events or news",
+      desc: "Keep people up to date with what's happening.",
     },
     {
       value: "brand",
@@ -197,12 +282,27 @@ const PURPOSE_BY_TYPE = {
   ],
 };
 
+// Picking any of these purposes brings up the "how should people reach you?" question
+const ENQUIRY_PURPOSES = ["customers", "contact", "hired"];
+
+// onlyIf: optional rule, the option only appears when it returns true
 const RECOMMENDED_OPTIONS = [
+  {
+    value: "ownDomain",
+    label: "Own domain (1 year)",
+    billing: "once",
+    onlyIf: (answers) =>
+      SUBDOMAIN_TYPES.includes(answers.siteType) && answers.hasDomain !== "yes",
+    desc:
+      "Your own web address, like yourevent.com, instead of the free subdomain on J D Style and Design. " +
+      "One-time payment covering one year.",
+  },
   {
     value: "advancedSeo",
     label: "Advanced SEO",
     billing: "recurring",
     detail: "SEO monitoring, keyword updates and ranking checks",
+    onlyIf: (answers) => offersRecurring(answers),
     desc:
       "Keyword research, content updates, speed tuning and ranking checks. " +
       "Recurring payment, because search rankings need ongoing work to stay high.",
@@ -222,7 +322,8 @@ const RECOMMENDED_OPTIONS = [
 ];
 
 // ===== QUESTIONS (add new ones to this list) =====
-// type: "single" = pick one (moves on automatically), "multi" = pick any (press Next)
+// type: "single" = pick one (moves on automatically), "multi" = pick any (press Next),
+//       "info" = an explainer screen with no options (counts as done once seen)
 // options: a list, or a rule that builds the list from earlier answers
 // showIf: optional rule, the question only appears when it returns true
 const QUESTIONS = [
@@ -251,12 +352,99 @@ const QUESTIONS = [
     ],
   },
   {
+    id: "explainAll",
+    type: "info",
+    title: "A few terms you'll see",
+    help: "Here's what these mean in plain words. Every website needs them, and they're part of your estimate.",
+    required: false,
+    terms: () => TERMS,
+    showIf: (answers) => answers.knowledge === "none",
+  },
+  {
+    id: "known",
+    type: "multi",
+    title: "Which of these do you already know?",
+    help: "Tick the ones you're familiar with. I'll explain the rest. It's fine to tick none.",
+    required: false,
+    options: TERMS.map((t) => ({
+      value: t.value,
+      label: t.label,
+      desc: "I know what this is.",
+    })),
+    showIf: (answers) => answers.knowledge === "little",
+  },
+  {
+    id: "explainSome",
+    type: "info",
+    title: "Quick explainer",
+    help: "Here's what the ones you didn't tick mean, in plain words.",
+    required: false,
+    terms: (answers) =>
+      TERMS.filter((t) => !(answers.known || []).includes(t.value)),
+    showIf: (answers) =>
+      answers.knowledge === "little" &&
+      TERMS.some((t) => !(answers.known || []).includes(t.value)),
+  },
+  {
+    id: "hasDomain",
+    type: "single",
+    title: "Do you already have your own domain?",
+    help: "A domain is your web address, like yourname.com.",
+    required: true,
+    options: [
+      {
+        value: "yes",
+        label: "Yes",
+        desc: "I already own a domain I want to use.",
+      },
+      { value: "no", label: "No", desc: "I'll need one set up." },
+    ],
+    showIf: (answers) =>
+      answers.knowledge === "little" || answers.knowledge === "enough",
+  },
+  {
     id: "siteType",
     type: "single",
     title: "What kind of website do you need?",
     help: "Pick the one closest to what you have in mind.",
     required: true,
     options: SITE_TYPE_OPTIONS,
+  },
+  {
+    id: "orgKind",
+    type: "single",
+    title: "What kind of organisation is it?",
+    help: "Churches, schools, clubs and student groups get a community discount.",
+    required: true,
+    options: [
+      { value: "church", label: "Church", desc: "A church or faith group." },
+      {
+        value: "school",
+        label: "School or school club",
+        desc: "A school, or a club or society within one.",
+      },
+      {
+        value: "club",
+        label: "Community club",
+        desc: "A sports, youth or community club.",
+      },
+      {
+        value: "students",
+        label: "Student group",
+        desc: "A group run by students.",
+      },
+      {
+        value: "charity",
+        label: "Charity or non-profit",
+        desc: "A registered charity or non-profit.",
+      },
+      {
+        value: "other",
+        label: "Something else",
+        desc: "Another kind of community group.",
+      },
+    ],
+    showIf: (answers) => answers.siteType === "organisation",
   },
   {
     id: "purpose",
@@ -268,15 +456,69 @@ const QUESTIONS = [
       PURPOSE_BY_TYPE[answers.siteType] || PURPOSE_BY_TYPE.notsure,
   },
   {
+    id: "enquiries",
+    type: "multi",
+    title: "How should people reach you?",
+    help: "Pick everything you'd like on your site.",
+    required: true,
+    options: [
+      {
+        value: "contactForm",
+        label: "A simple contact form",
+        desc: "Name, email and message. Included with every site.",
+      },
+      {
+        value: "questionnaire",
+        label: "A custom questionnaire",
+        desc: "Your own questions, like an order, booking or application form.",
+      },
+      {
+        value: "link",
+        label: "A specific link",
+        desc: "A WhatsApp, booking or other link of your choice.",
+      },
+      {
+        value: "direct",
+        label: "Just my phone number and email",
+        desc: "Shown clearly so people can call or write.",
+      },
+    ],
+    showIf: (answers) =>
+      (answers.purpose || []).some((p) => ENQUIRY_PURPOSES.includes(p)),
+  },
+  {
+    id: "logo",
+    type: "single",
+    title: "Do you have a logo?",
+    help: "It's fine if you don't. A logo can be added to your site at any time.",
+    required: true,
+    options: [
+      { value: "have", label: "Yes, I have one", desc: "I'll send it over." },
+      {
+        value: "notYet",
+        label: "Not currently",
+        desc: "I don't have one and I'm not planning one right now.",
+      },
+      {
+        value: "planMake",
+        label: "I plan to make one",
+        desc: "I'll make it myself or have someone else make it later.",
+      },
+      {
+        value: "wantMade",
+        label: "I'd like one made for me",
+        desc: "Add logo design to my estimate.",
+      },
+    ],
+  },
+  {
     id: "recommended",
     type: "multi",
     title: "Recommended services",
     help: "These are optional, but they help your site get found and grow. Pick any that suit you, or none.",
     required: false,
     options: (answers) =>
-      RECOMMENDED_OPTIONS.filter(
-        (o) => o.billing !== "recurring" || offersRecurring(answers),
-      ),
+      RECOMMENDED_OPTIONS.filter((o) => !o.onlyIf || o.onlyIf(answers)),
   },
   {
     id: "paymentPlan",
@@ -301,17 +543,25 @@ const BUILD_PRICES = {
   notsure: 45000,
 };
 
-// billing: "once" = part of the primary payment (website build)
-//          "recurring" = ongoing service, priced per month, billed on the chosen plan
-// Contact form is included free, so it is not listed.
+// Always on the estimate from the start (contact form is free, so it is not listed)
 const MANDATORY = [
-  { name: "Domain (1 year)", amount: 3000, billing: "once" },
   { name: "HTTPS and basic security", amount: 5000, billing: "once" },
   { name: "Basic SEO", amount: 8000, billing: "once" },
 ];
 
+// Domain, added only once the domain is settled
+const DOMAIN_PRICE = 3000;
+
+// Logo design, added when they ask for one
+const LOGO_PRICE = 15000;
+
 // Recommended services (Advanced SEO is a monthly price)
-const PRICES = { advancedSeo: 9000, analytics: 5000, socials: 10000 };
+const PRICES = {
+  ownDomain: 3000,
+  advancedSeo: 9000,
+  analytics: 5000,
+  socials: 10000,
+};
 
 // ===== STATE =====
 // "flagged" = steps the client pressed Next past while empty (these show red or yellow)
@@ -354,17 +604,30 @@ function hasRecurring(answers) {
   );
 }
 
+function getsCommunityDiscount(answers) {
+  return (
+    answers.siteType === "organisation" &&
+    DISCOUNT_ORG_KINDS.includes(answers.orgKind)
+  );
+}
+
 function getOptions(q) {
+  if (!q.options) return [];
   return typeof q.options === "function" ? q.options(state.answers) : q.options;
 }
 
+function isShown(q) {
+  return !q.showIf || q.showIf(state.answers);
+}
+
 function visibleQuestions() {
-  return QUESTIONS.filter((q) => !q.showIf || q.showIf(state.answers));
+  return QUESTIONS.filter(isShown);
 }
 
 function isAnswered(q) {
   const a = state.answers[q.id];
   if (q.type === "multi") return Array.isArray(a) && a.length > 0;
+  if (q.type === "info") return a === true;
   return a !== undefined;
 }
 
@@ -381,23 +644,27 @@ function clearFlagsAfter(id) {
   state.flagged = state.flagged.filter((f) => !later.includes(f));
 }
 
-// Remove answers that no longer fit, e.g. after the site type changes
+// Remove answers that no longer fit: hidden questions and options that disappeared
 function pruneAnswers() {
-  QUESTIONS.forEach((q) => {
-    const a = state.answers[q.id];
-    if (a === undefined) return;
-    const valid = getOptions(q).map((o) => o.value);
-    if (q.type === "multi") {
-      state.answers[q.id] = (Array.isArray(a) ? a : []).filter((v) =>
-        valid.includes(v),
-      );
-    } else if (!valid.includes(a)) {
-      delete state.answers[q.id];
-    }
-  });
-  if (!hasRecurring(state.answers)) {
-    delete state.answers.paymentPlan;
-    state.flagged = state.flagged.filter((id) => id !== "paymentPlan");
+  for (let pass = 0; pass < 3; pass++) {
+    // repeat, because one change can hide another question
+    QUESTIONS.forEach((q) => {
+      if (!isShown(q)) {
+        delete state.answers[q.id];
+        state.flagged = state.flagged.filter((id) => id !== q.id);
+        return;
+      }
+      const a = state.answers[q.id];
+      if (a === undefined || q.type === "info") return;
+      const valid = getOptions(q).map((o) => o.value);
+      if (q.type === "multi") {
+        state.answers[q.id] = (Array.isArray(a) ? a : []).filter((v) =>
+          valid.includes(v),
+        );
+      } else if (!valid.includes(a)) {
+        delete state.answers[q.id];
+      }
+    });
   }
 }
 
@@ -552,8 +819,58 @@ function isChosen(q, value) {
     : a === value;
 }
 
+// Explainer cards for "info" screens
+function termCards(list) {
+  return list
+    .map(
+      (t) =>
+        '<div style="background:var(--white);border:2px solid #e3ebe6;border-left:4px solid var(--gold);' +
+        'border-radius:14px;padding:0.9rem 1.1rem">' +
+        '<strong style="display:block;color:var(--green);margin-bottom:0.25rem">' +
+        t.label +
+        "</strong>" +
+        '<span style="opacity:0.85">' +
+        t.explain +
+        "</span>" +
+        "</div>",
+    )
+    .join("");
+}
+
 function renderQuestion(direction) {
   const q = visibleQuestions()[state.index];
+
+  let body;
+  if (q.type === "info") {
+    body =
+      '<div class="options">' + termCards(q.terms(state.answers)) + "</div>";
+  } else {
+    body =
+      '<div class="options">' +
+      getOptions(q)
+        .map((o) => {
+          const badge = o.billing
+            ? ' <span class="tag" style="font-size:0.75rem;color:var(--gold)">' +
+              (o.billing === "recurring" ? "Recurring" : "One-time") +
+              (o.value === "ownDomain" ? " · Upgrade" : " · Recommended") +
+              "</span>"
+            : "";
+          return (
+            '<button class="option' +
+            (isChosen(q, o.value) ? " selected" : "") +
+            '" data-value="' +
+            o.value +
+            '"><strong>' +
+            o.label +
+            badge +
+            "</strong>" +
+            o.desc +
+            "</button>"
+          );
+        })
+        .join("") +
+      "</div>";
+  }
 
   stage.innerHTML =
     '<div class="q-card"><h1>' +
@@ -561,29 +878,8 @@ function renderQuestion(direction) {
     '</h1><p class="help">' +
     q.help +
     "</p>" +
-    '<div class="options">' +
-    getOptions(q)
-      .map((o) => {
-        const badge = o.billing
-          ? ' <span class="tag" style="font-size:0.75rem;color:var(--gold)">' +
-            (o.billing === "recurring" ? "Recurring" : "One-time") +
-            " · Recommended</span>"
-          : "";
-        return (
-          '<button class="option' +
-          (isChosen(q, o.value) ? " selected" : "") +
-          '" data-value="' +
-          o.value +
-          '"><strong>' +
-          o.label +
-          badge +
-          "</strong>" +
-          o.desc +
-          "</button>"
-        );
-      })
-      .join("") +
-    "</div></div>";
+    body +
+    "</div>";
 
   stage.classList.remove("in-left", "in-right", "out-left", "out-right");
   void stage.offsetWidth; // restart the animation
@@ -594,6 +890,13 @@ function renderQuestion(direction) {
     .forEach((btn) =>
       btn.addEventListener("click", () => answer(q, btn.dataset.value)),
     );
+
+  // Explainer screens count as done once they've been seen
+  if (q.type === "info" && state.answers[q.id] !== true) {
+    state.answers[q.id] = true;
+    save();
+    updateCounter();
+  }
 
   // Back is always usable: on the first question it returns home
   backBtn.disabled = false;
@@ -797,6 +1100,14 @@ function noticeBox(html) {
 function bonusLines() {
   const lines = [];
   const plan = state.answers.paymentPlan;
+  if (getsCommunityDiscount(state.answers)) {
+    lines.push(
+      "<strong>Community discount:</strong> " +
+        (hasRecurring(state.answers)
+          ? "40% off your website build, because you're on an ongoing plan."
+          : "30% off your website build. Add an ongoing plan to raise it to 40%."),
+    );
+  }
   if (plan && BONUS_PLANS.includes(plan)) {
     lines.push(
       "<strong>Plan bonus:</strong> your " +
@@ -815,19 +1126,22 @@ function bonusLines() {
 }
 
 function buildSummary() {
-  const once = items.filter((it) => it.billing === "once");
+  const once = items.filter((it) => it.billing === "once" && it.amount >= 0);
   const recurring = items.filter((it) => it.billing === "recurring");
 
   // 1. Primary payment
+  const extras = ["<strong>Two revisions</strong>" + tagText("Included")];
+  if (!(state.answers.enquiries || []).includes("contactForm")) {
+    extras.unshift(
+      "<strong>Contact form on your site</strong>" + tagText("Included"),
+    );
+  }
   let html =
     sectionHead("Primary payment", "one-time fee") +
     listOf(
       once
         .map((it) => "<strong>" + it.name + "</strong>" + tagText(it.tag))
-        .concat([
-          "<strong>Contact form on your site</strong>" + tagText("Included"),
-          "<strong>Two revisions</strong>" + tagText("Included"),
-        ]),
+        .concat(extras),
     );
 
   // Not part of the primary payment
@@ -899,18 +1213,29 @@ function showEndScreen() {
 
 // ===== PRICE COUNTER =====
 function format(n) {
-  return "J$" + n.toLocaleString();
+  const text = "J$" + Math.abs(n).toLocaleString();
+  return n < 0 ? "−" + text : text;
 }
 
 function roundHundred(n) {
   return Math.round(n / 100) * 100;
 }
 
+// Is the domain settled yet? Returns "owned", "needed" or null (not known yet)
+function domainStatus() {
+  const a = state.answers;
+  if (a.hasDomain === "yes") return "owned";
+  if (a.hasDomain === "no") return "needed";
+  if (a.knowledge === "none" && a.explainAll === true) return "needed";
+  return null;
+}
+
 function buildItems() {
   const list = [];
+  const type = state.answers.siteType;
+  const chosen = state.answers.recommended || [];
 
   // Base website build, once the site type is known
-  const type = state.answers.siteType;
   if (type && BUILD_PRICES[type] !== undefined) {
     list.push({
       name: ONE_PAGE_TYPES.includes(type)
@@ -920,20 +1245,86 @@ function buildItems() {
       billing: "once",
       tag: "Base",
     });
+
+    // Community discount on the build
+    if (getsCommunityDiscount(state.answers)) {
+      const rate = hasRecurring(state.answers)
+        ? COMMUNITY_DISCOUNT_ONGOING
+        : COMMUNITY_DISCOUNT;
+      list.push({
+        name: "Community discount (" + Math.round(rate * 100) + "% off build)",
+        amount: -roundHundred(BUILD_PRICES[type] * rate),
+        billing: "once",
+        tag: "Discount",
+      });
+    }
   }
 
+  // HTTPS and basic SEO: always there
   MANDATORY.forEach((m) => list.push({ ...m, tag: "Mandatory" }));
 
-  (state.answers.recommended || []).forEach((value) => {
+  // Domain: only once it's settled
+  const domain = domainStatus();
+  if (domain === "owned") {
+    list.push({
+      name: "Your own domain",
+      amount: 0,
+      billing: "once",
+      tag: "Already owned",
+    });
+  } else if (domain === "needed") {
+    if (SUBDOMAIN_TYPES.includes(type)) {
+      // Event sites: free subdomain, unless they upgraded to their own domain
+      if (!chosen.includes("ownDomain")) {
+        list.push({
+          name: "Subdomain on J D Style and Design",
+          amount: 0,
+          billing: "once",
+          tag: "Included",
+        });
+      }
+    } else {
+      list.push({
+        name: "Domain (1 year)",
+        amount: DOMAIN_PRICE,
+        billing: "once",
+        tag: "Mandatory",
+      });
+    }
+  }
+
+  // Contact form, when they picked it
+  if ((state.answers.enquiries || []).includes("contactForm")) {
+    list.push({
+      name: "Contact form",
+      amount: 0,
+      billing: "once",
+      tag: "Included",
+    });
+  }
+
+  // Logo design, when they asked for one
+  if (state.answers.logo === "wantMade") {
+    list.push({
+      name: "Logo design",
+      amount: LOGO_PRICE,
+      billing: "once",
+      tag: "Requested",
+    });
+  }
+
+  chosen.forEach((value) => {
     const o = RECOMMENDED_OPTIONS.find((x) => x.value === value);
-    if (o)
+    if (o) {
       list.push({
         name: o.label,
         amount: PRICES[value],
         billing: o.billing,
-        tag: "Recommended",
+        tag: value === "ownDomain" ? "Upgrade" : "Recommended",
       });
+    }
   });
+
   return list;
 }
 
@@ -963,6 +1354,12 @@ function planLabel() {
   return plan ? plan.label : "Plan not chosen yet";
 }
 
+function priceText(it, billing) {
+  if (it.amount === null) return "TBD";
+  if (it.amount === 0) return "Free";
+  return format(it.amount) + (billing === "recurring" ? "/mo" : "");
+}
+
 function rowsFor(billing, small) {
   return items
     .filter((it) => it.billing === billing)
@@ -975,9 +1372,7 @@ function rowsFor(billing, small) {
         ' <span class="tag">' +
         it.tag +
         "</span></span><span>" +
-        (it.amount === null
-          ? "TBD"
-          : format(it.amount) + (billing === "recurring" ? "/mo" : "")) +
+        priceText(it, billing) +
         "</span></li>",
     )
     .join("");
@@ -1082,7 +1477,32 @@ document.getElementById("toolbarToggle").addEventListener("click", () => {
   document.getElementById("toolbarToggle").setAttribute("aria-expanded", open);
 });
 
+// ===== ESTIMATOR POSITION =====
+// Medium screens: the estimator becomes its own bubble at the bottom of the left column.
+// Phones and wide screens: it stays in its usual spot.
+const dockCounter = window.matchMedia(
+  "(min-width: 801px) and (max-width: 1200px)",
+);
+
+function placeCounter() {
+  counter.classList.toggle("docked", dockCounter.matches);
+}
+dockCounter.addEventListener("change", placeCounter);
+placeCounter();
 // ===== START =====
-renderQuestion("next");
-renderToolbar();
-updateCounter();
+// If old saved answers break the page, clear them and start fresh automatically
+try {
+  renderQuestion("next");
+  renderToolbar();
+  updateCounter();
+} catch (err) {
+  console.warn("Saved quiz answers didn't load, starting fresh:", err);
+  try {
+    localStorage.removeItem(SAVE_KEY);
+  } catch (e) {}
+  state = freshState();
+  onFinalScreen = false;
+  renderQuestion("next");
+  renderToolbar();
+  updateCounter();
+}
