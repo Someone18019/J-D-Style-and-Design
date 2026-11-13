@@ -1195,7 +1195,7 @@ function showEndScreen() {
     save();
     stage.innerHTML =
       '<div class="q-card"><h1>Your answers are saved</h1>' +
-      '<p class="help">Check your estimate in the bottom right corner, or refer to the sidebar on your left to revisit your answers.</p>' +
+      '<p class="help">Check your estimate in the estimator box, or use the steps list to revisit your answers.</p>' +
       '<h2 style="color:var(--green);font-size:1.3rem;margin-top:1rem">What\'s included</h2>' +
       buildSummary() +
       "</div>";
@@ -1489,6 +1489,7 @@ function placeCounter() {
 }
 dockCounter.addEventListener("change", placeCounter);
 placeCounter();
+
 // ===== START =====
 // If old saved answers break the page, clear them and start fresh automatically
 try {
