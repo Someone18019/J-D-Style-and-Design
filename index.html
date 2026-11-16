@@ -3,77 +3,195 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>J D Style and Design | Web Design</title>
+    <title>JD-Style and Design | Web Design</title>
     <meta
       name="description"
-      content="J D Style and Design builds modern, animated websites for portfolios and small businesses."
+      content="JD-Style and Design builds modern, animated websites for portfolios and small businesses."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Sora:wght@600;700&display=swap"
+      rel="stylesheet"
     />
     <link rel="stylesheet" href="css/style.css" />
   </head>
   <body>
-    <!-- HERO: brand, pitch, button to the quiz -->
-    <header class="hero">
-      <h1 class="brand">J D Style <span class="gold">and</span> Design</h1>
+    <!-- BACKGROUND: glow that follows the mouse, plus a faint grid -->
+    <div class="bg-glow" aria-hidden="true"></div>
+    <div class="bg-grid" aria-hidden="true"></div>
+
+    <!-- TOP BAR: slides down once the hero scrolls away -->
+    <header class="topbar" id="topbar">
+      <a href="#top" class="topbar-brand"
+        >JD-Style <span class="gold">and</span> Design</a
+      >
+      <a href="quiz.html" class="btn btn-small js-quiz">Get Your Estimate</a>
+    </header>
+
+    <!-- HERO: centred brand, pitch and a live preview -->
+    <section class="hero" id="top">
+      <h1 class="brand">JD-Style <span class="gold">and</span> Design</h1>
       <p class="pitch">
         Modern websites, built to fit your business and your budget.
       </p>
-      <a href="quiz.html" class="btn" id="startQuiz">Get Your Estimate</a>
-    </header>
+      <a href="quiz.html" class="btn js-quiz">Get Your Estimate</a>
 
-    <main>
-      <!-- ABOUT: three short blocks -->
-      <section class="about" id="about">
-        <h2>About</h2>
-        <div class="cards">
-          <article class="card">
-            <h3>Who We Are</h3>
-            <p>Placeholder: a short intro about you and the business.</p>
-          </article>
-          <article class="card">
-            <h3>What We Stand For</h3>
-            <p>Placeholder: your motto and goals.</p>
-          </article>
-          <article class="card">
-            <h3>What We Offer</h3>
-            <p>
-              Portfolio sites and small business sites, with SEO and
-              mobile-friendly design included.
-            </p>
-          </article>
+      <!-- A mini website that builds itself -->
+      <div class="preview" aria-hidden="true">
+        <div class="preview-bar"><span></span><span></span><span></span></div>
+        <div class="preview-page">
+          <div class="pv pv-nav"></div>
+          <div class="pv pv-hero"></div>
+          <div class="pv-row">
+            <div class="pv pv-card"></div>
+            <div class="pv pv-card"></div>
+            <div class="pv pv-card"></div>
+          </div>
+          <div class="pv pv-footer"></div>
         </div>
-      </section>
+      </div>
 
-      <!-- CONTACT: number, email, social cards -->
-      <section class="contact" id="contact">
-        <h2>Contact</h2>
-        <p>
-          Phone / WhatsApp: <a href="tel:+18760000000">+1 (876) 000-0000</a>
-        </p>
-        <p>Email: <a href="mailto:hello@example.com">hello@example.com</a></p>
+      <div class="scroll-hint" aria-hidden="true">Scroll</div>
+    </section>
 
-        <!-- Social cards: swap each src for a real screenshot later -->
-        <div class="socials">
-          <a class="social-card" href="#" target="_blank" rel="noopener">
-            <img
-              src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 220 140'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23006b3c'/%3E%3Cstop offset='1' stop-color='%23d4a937'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='220' height='140' fill='url(%23g)'/%3E%3C/svg%3E"
-              alt="Instagram preview"
-            />
-            <span>@jdstyleanddesign</span>
-          </a>
-          <a class="social-card" href="#" target="_blank" rel="noopener">
-            <img
-              src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 220 140'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23006b3c'/%3E%3Cstop offset='1' stop-color='%23d4a937'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='220' height='140' fill='url(%23g)'/%3E%3C/svg%3E"
-              alt="Facebook preview"
-            />
-            <span>JD Style and Design</span>
-          </a>
-        </div>
-      </section>
-    </main>
+    <!-- MAIN LAYOUT: icon bar left, sections middle, previews right -->
+    <div class="layout">
+      <!-- Left icon bar (horizontal and sticky on phones) -->
+      <nav class="dock" id="dock" aria-label="Page sections">
+        <a href="#services" class="dock-item" data-label="Services">
+          <svg viewBox="0 0 24 24">
+            <rect x="3" y="3" width="7" height="7" rx="1.5" />
+            <rect x="14" y="3" width="7" height="7" rx="1.5" />
+            <rect x="3" y="14" width="7" height="7" rx="1.5" />
+            <rect x="14" y="14" width="7" height="7" rx="1.5" />
+          </svg>
+        </a>
+        <a href="#how" class="dock-item" data-label="How it works">
+          <svg viewBox="0 0 24 24"><path d="M4 18h4v-4h4v-4h4V6h4" /></svg>
+        </a>
+        <a href="#builder" class="dock-item" data-label="Builder">
+          <svg viewBox="0 0 24 24">
+            <path d="M4 20l4-1 11-11-3-3L5 16z" />
+            <path d="M14 6l3 3" />
+          </svg>
+        </a>
+        <a href="#work" class="dock-item" data-label="Work">
+          <svg viewBox="0 0 24 24">
+            <rect x="3" y="5" width="18" height="14" rx="2" />
+            <path d="M3 16l5-5 4 4 3-3 6 6" />
+          </svg>
+        </a>
+        <a href="#about" class="dock-item" data-label="About">
+          <svg viewBox="0 0 24 24">
+            <circle cx="12" cy="8" r="4" />
+            <path d="M4 21c1-4 4-6 8-6s7 2 8 6" />
+          </svg>
+        </a>
+        <a href="#contact" class="dock-item" data-label="Contact">
+          <svg viewBox="0 0 24 24">
+            <rect x="3" y="5" width="18" height="14" rx="2" />
+            <path d="M3 7l9 6 9-6" />
+          </svg>
+        </a>
+      </nav>
+
+      <!-- Middle sections (blank ones get filled in later) -->
+      <main class="content">
+        <section id="services" class="panel reveal">
+          <h2>Services</h2>
+          <div class="placeholder"></div>
+        </section>
+
+        <section id="how" class="panel reveal">
+          <h2>How it works</h2>
+          <div class="placeholder"></div>
+        </section>
+
+        <section id="builder" class="panel reveal">
+          <h2>Website Builder</h2>
+          <div class="placeholder"></div>
+        </section>
+
+        <section id="work" class="panel reveal">
+          <h2>Our Work</h2>
+          <div class="placeholder"></div>
+        </section>
+
+        <section id="about" class="panel reveal">
+          <h2>About</h2>
+          <div class="cards">
+            <article class="card">
+              <h3>Who We Are</h3>
+              <p>Placeholder: a short intro about you and the business.</p>
+            </article>
+            <article class="card">
+              <h3>What We Stand For</h3>
+              <p>Placeholder: your motto and goals.</p>
+            </article>
+            <article class="card">
+              <h3>What We Offer</h3>
+              <p>
+                Portfolio sites and small business sites, with SEO and
+                mobile-friendly design included.
+              </p>
+            </article>
+          </div>
+        </section>
+
+        <section id="contact" class="panel reveal">
+          <h2>Contact</h2>
+          <p>
+            Phone / WhatsApp: <a href="tel:+18760000000">+1 (876) 000-0000</a>
+          </p>
+          <p>Email: <a href="mailto:hello@example.com">hello@example.com</a></p>
+        </section>
+      </main>
+
+      <!-- Right previews: each whole box is a link -->
+      <aside class="showcase">
+        <!-- 1. Builder: blocks appear one by one -->
+        <a href="#builder" class="show-box reveal">
+          <div class="show-screen build-demo" aria-hidden="true">
+            <div class="bd bd-1"></div>
+            <div class="bd bd-2"></div>
+            <div class="bd bd-3"></div>
+            <div class="bd bd-4"></div>
+          </div>
+          <strong>Website Builder</strong>
+          <span>Bring the idea. We'll finish it.</span>
+        </a>
+
+        <!-- 2. Estimate: total ticks up as options get picked -->
+        <a href="quiz.html" class="show-box reveal js-quiz">
+          <div class="show-screen estimate-demo" aria-hidden="true">
+            <div class="ed-total" id="demoTotal">J$0</div>
+            <div class="ed-chips">
+              <span class="ed-chip">Website build</span>
+              <span class="ed-chip">Domain</span>
+              <span class="ed-chip">SEO</span>
+            </div>
+          </div>
+          <strong>Instant Estimate</strong>
+          <span>See your price as you choose.</span>
+        </a>
+
+        <!-- 3. Past work: rotating previews -->
+        <a href="#work" class="show-box reveal">
+          <div class="show-screen work-demo" aria-hidden="true">
+            <div class="wd-slide wd-1">Client project</div>
+            <div class="wd-slide wd-2">Client project</div>
+            <div class="wd-slide wd-3">Client project</div>
+          </div>
+          <strong>Recent Work</strong>
+          <span>Sites we've built for clients.</span>
+        </a>
+      </aside>
+    </div>
 
     <footer>
       <p>
-        &copy; <span id="year"></span> JD Style and Design. All rights reserved.
+        &copy; <span id="year"></span> JD-Style and Design. All rights reserved.
       </p>
     </footer>
 
