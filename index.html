@@ -21,12 +21,12 @@
     <div class="bg-glow" aria-hidden="true"></div>
     <div class="bg-grid" aria-hidden="true"></div>
 
-    <!-- TOP BAR: slides down once the hero scrolls away -->
+    <!-- TOP BAR: brand and button glide in once the hero scrolls away -->
     <header class="topbar" id="topbar">
       <a href="#top" class="topbar-brand"
         >JD-Style <span class="gold">and</span> Design</a
       >
-      <a href="quiz.html" class="btn btn-small js-quiz">Get Your Estimate</a>
+      <a href="quiz.html" class="btn btn-small js-quiz">Start Your Build</a>
     </header>
 
     <!-- HERO: centred brand, pitch and a live preview -->
@@ -35,7 +35,7 @@
       <p class="pitch">
         Modern websites, built to fit your business and your budget.
       </p>
-      <a href="quiz.html" class="btn js-quiz">Get Your Estimate</a>
+      <a href="quiz.html" class="btn js-quiz">Start Your Build</a>
 
       <!-- A mini website that builds itself -->
       <div class="preview" aria-hidden="true">
@@ -57,6 +57,8 @@
 
     <!-- MAIN LAYOUT: icon bar left, sections middle, previews right -->
     <div class="layout">
+      <!-- Left side panel (empty for now, content TBD) -->
+      <aside class="side-panel" id="sidePanel" aria-hidden="true"></aside>
       <!-- Left icon bar (horizontal and sticky on phones) -->
       <nav class="dock" id="dock" aria-label="Page sections">
         <a href="#services" class="dock-item" data-label="Services">
@@ -162,7 +164,7 @@
           <span>Bring the idea. We'll finish it.</span>
         </a>
 
-        <!-- 2. Estimate: total ticks up as options get picked -->
+        <!-- 2. Estimate: total goes up and down with the chips (main.js) -->
         <a href="quiz.html" class="show-box reveal js-quiz">
           <div class="show-screen estimate-demo" aria-hidden="true">
             <div class="ed-total" id="demoTotal">J$0</div>

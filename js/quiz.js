@@ -1468,6 +1468,10 @@ window.setPrice = (key, amount) => {
 document.getElementById("counterHead").addEventListener("click", () => {
   const open = counter.classList.toggle("open");
   document.getElementById("counterHead").setAttribute("aria-expanded", open);
+  counter.classList.remove("scrollable");
+  if (open) setTimeout(() => {
+    if (counter.classList.contains("open")) counter.classList.add("scrollable");
+  }, 800);   // match the 0.8s open animation
   updateRecurringLine(); // hide the small line while expanded
 });
 
