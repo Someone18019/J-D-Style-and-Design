@@ -1,14 +1,19 @@
 /* ===== THEME COLOURS ===== */
 :root {
-  color-scheme: only light;
   --green: #0b3d26;
-  --bright-green: #3ddc84; /* done glow */
+  --green-deep: #06261a;
   --gold: #d4a937;
-  --red: #e5484d; /* required and empty */
-  --yellow: #f2c94c; /* optional and empty */
-  --panel: rgba(255, 255, 255, 0.86);
-  --text: #1c2b22;
-  --white: #ffffff;
+  --text: #e8f3ec;
+  --text-muted: #8bae97;
+  --glass: rgba(8, 36, 24, 0.55);
+  --glass-light: rgba(255, 255, 255, 0.07);
+  --edge: rgba(255, 255, 255, 0.12);
+  --panel: var(--glass);              /* toolbar and window */
+  --card: rgba(255, 255, 255, 0.06);  /* steps and options */
+  --white: var(--card);               /* old name, still used by quiz.js boxes */
+  --red: #e5484d;
+  --yellow: #f2c94c;
+  --bright-green: #3ddc84;
   --radius: 14px;
 }
 
@@ -17,6 +22,10 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+}
+
+h1, h2, h3, button {
+  font-family: 'Sora', sans-serif;
 }
 
 body {
@@ -71,18 +80,11 @@ body::before {
 }
 
 .progress {
-  height: 8px;
-  background: rgba(0, 107, 60, 0.15);
-  border-radius: 8px;
-  overflow: hidden;
-  margin-bottom: 1.25rem;
+  background-color: var(--glass-light);
 }
-.progress-fill {
-  height: 100%;
-  width: 0;
-  background: var(--bright-green);
-  border-radius: 8px;
-  transition: width 0.5s ease;
+
+.progress-bar {
+  background-color: var(--gold);
 }
 
 .steps {
@@ -309,7 +311,7 @@ body::before {
 .counter-body {
   max-height: 0;
   overflow: hidden;
-  transition: max-height 0.4s ease;
+  transition: max-height 0.8s ease;
 }
 .counter.open .counter-body {
   max-height: min(420px, 60vh);
@@ -431,10 +433,8 @@ body::before {
   }
 
   /* Open: full width so the breakdown is readable */
-  .counter.open {
-    width: calc(100% - 1.5rem);
-  }
-}
+.counter.open .counter-body { max-height: min(420px, 60vh); }
+.counter.scrollable .counter-body { overflow-y: auto; }   /* only after it finishes opening */}
 
 /* ===== ANIMATIONS ===== */
 @keyframes stepIn {
@@ -502,4 +502,37 @@ body::before {
     color: var(--gold);
     transform: scale(1.12);
   }
+}
+
+/* ===== DARK THEME FIXES ===== */
+.toolbar, .window { border: 1px solid var(--edge); }
+.home-link, .toolbar-toggle, .q-card h1 { color: var(--gold); }
+.step { background: var(--card); }
+.option { background: var(--card); }
+.option strong { color: var(--text); }
+.option:hover { border-color: rgba(212, 169, 55, 0.6); box-shadow: 0 0 18px rgba(212, 169, 55, 0.25); }
+.nav-btn { border-color: var(--gold); color: var(--text); }
+.nav-btn:hover:not(:disabled) { background: rgba(212, 169, 55, 0.15); }
+.nav-btn.primary { color: #1c2b22; }
+.counter { background: var(--glass); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border: 1px solid var(--edge); border-top: 4px solid var(--gold); }
+.counter-head { color: var(--text); }
+.counter-total, #breakdown .tag { color: var(--gold); }
+#breakdown li { border-bottom-color: var(--edge); }
+@keyframes goldFlash {
+  0%, 100% { color: var(--gold); }
+  30% { color: #ffffff; transform: scale(1.12); }
+}
+
+/* Estimator list scrolls without a visible scrollbar (no flicker while opening) */
+.counter-body { scrollbar-width: none; }
+.counter-body::-webkit-scrollbar { display: none; }
+
+/* ===== QUIZ.JS INLINE COLOURS (headings, breakdown, end screen) ===== */
+/* Anything quiz.js colours dark green becomes gold */
+[style*="var(--green)"] { color: var(--gold) !important; }
+
+/* "Not included" notice box: dark gold glass instead of cream */
+[style*="#fbf4e2"] {
+  background: rgba(212, 169, 55, 0.1) !important;
+  color: var(--text) !important;
 }

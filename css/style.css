@@ -1,21 +1,27 @@
 /* ===== THEME (change colours here) ===== */
 :root {
-  --green: #0b3d26;                       /* dark forest green */
-  --green-deep: #06261a;                  /* darker shade for depth */
+  --green: #0b3d26; /* dark forest green */
+  --green-deep: #06261a; /* darker shade for depth */
   --gold: #d4a937;
-  --text: #e8f3ec;                        /* light text on dark glass */
+  --text: #e8f3ec; /* light text on dark glass */
   --muted: rgba(232, 243, 236, 0.7);
-  --glass: rgba(8, 36, 24, 0.55);         /* dark glass panels */
+  --glass: rgba(8, 36, 24, 0.55); /* dark glass panels */
   --glass-light: rgba(255, 255, 255, 0.07);
-  --edge: rgba(255, 255, 255, 0.12);      /* thin glass border */
+  --edge: rgba(255, 255, 255, 0.12); /* thin glass border */
   --radius: 18px;
-  --mx: 50%;                              /* mouse position, set by main.js */
+  --mx: 50%; /* mouse position, set by main.js */
   --my: 30%;
 }
 
 /* ===== BASICS ===== */
-* { margin: 0; padding: 0; box-sizing: border-box; }
-html { scroll-behavior: smooth; }
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+html {
+  scroll-behavior: smooth;
+}
 
 body {
   font-family: "Inter", "Segoe UI", Arial, sans-serif;
@@ -25,9 +31,18 @@ body {
   overflow-x: hidden;
 }
 
-h1, h2, h3, .topbar-brand { font-family: "Sora", "Segoe UI", sans-serif; }
-a { color: var(--gold); }
-.gold { color: var(--gold); }
+h1,
+h2,
+h3,
+.topbar-brand {
+  font-family: "Sora", "Segoe UI", sans-serif;
+}
+a {
+  color: var(--gold);
+}
+.gold {
+  color: var(--gold);
+}
 
 /* ===== BACKGROUND: mouse glow + faint grid ===== */
 .bg-glow {
@@ -36,10 +51,17 @@ a { color: var(--gold); }
   z-index: 0;
   pointer-events: none;
   background:
-    radial-gradient(600px circle at var(--mx) var(--my), rgba(212, 169, 55, 0.14), transparent 60%),
-    radial-gradient(900px circle at calc(100% - var(--mx)) calc(100% - var(--my)), rgba(30, 140, 90, 0.25), transparent 65%),
+    radial-gradient(
+      600px circle at var(--mx) var(--my),
+      rgba(212, 169, 55, 0.14),
+      transparent 60%
+    ),
+    radial-gradient(
+      900px circle at calc(100% - var(--mx)) calc(100% - var(--my)),
+      rgba(30, 140, 90, 0.25),
+      transparent 65%
+    ),
     linear-gradient(160deg, var(--green) 0%, var(--green-deep) 100%);
-  transition: background-position 0.2s;
 }
 
 .bg-grid {
@@ -51,12 +73,25 @@ a { color: var(--gold); }
     linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
     linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
   background-size: 48px 48px;
-  -webkit-mask-image: radial-gradient(500px circle at var(--mx) var(--my), #000, transparent 75%);
-  mask-image: radial-gradient(500px circle at var(--mx) var(--my), #000, transparent 75%);
+  -webkit-mask-image: radial-gradient(
+    500px circle at var(--mx) var(--my),
+    #000,
+    transparent 75%
+  );
+  mask-image: radial-gradient(
+    500px circle at var(--mx) var(--my),
+    #000,
+    transparent 75%
+  );
 }
 
 /* Keep content above the background */
-.topbar, .hero, .layout, footer { position: relative; z-index: 1; }
+.hero,
+.layout,
+footer {
+  position: relative;
+  z-index: 1;
+}
 
 /* ===== BUTTONS ===== */
 .btn {
@@ -67,16 +102,22 @@ a { color: var(--gold); }
   border-radius: 50px;
   text-decoration: none;
   font-weight: 600;
-  box-shadow: 0 0 0 rgba(212, 169, 55, 0);
-  transition: transform 0.25s, box-shadow 0.25s;
+  transition:
+    transform 0.25s,
+    box-shadow 0.25s;
 }
 .btn:hover {
   transform: translateY(-3px);
   box-shadow: 0 10px 30px rgba(212, 169, 55, 0.35);
 }
-.btn-small { padding: 0.5rem 1.2rem; font-size: 0.9rem; }
+.btn-small {
+  padding: 0.5rem 1.2rem;
+  font-size: 0.9rem;
+}
 
-/* ===== TOP BAR (appears after the hero) ===== */
+/* ===== TOP BAR ===== */
+/* Always there, but see-through and empty until you scroll past the hero.
+   The brand and button glide in from the hero (main.js). */
 .topbar {
   position: fixed;
   top: 0;
@@ -87,14 +128,20 @@ a { color: var(--gold); }
   align-items: center;
   justify-content: space-between;
   padding: 0.7rem 1.5rem;
+  background: transparent;
+  border-bottom: 1px solid transparent;
+  pointer-events: none;
+  transition:
+    background 0.4s ease,
+    border-color 0.4s ease;
+}
+body.scrolled .topbar {
   background: var(--glass);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
-  border-bottom: 1px solid var(--edge);
-  transform: translateY(-100%);
-  transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+  border-bottom-color: var(--edge);
+  pointer-events: auto;
 }
-body.scrolled .topbar { transform: translateY(0); }
 
 .topbar-brand {
   color: var(--text);
@@ -103,9 +150,19 @@ body.scrolled .topbar { transform: translateY(0); }
   font-size: 1.1rem;
 }
 
+/* Hidden until scrolled, then they glide in */
+.topbar-brand,
+.topbar .btn {
+  opacity: 0;
+}
+body.scrolled .topbar-brand,
+body.scrolled .topbar .btn {
+  opacity: 1;
+}
+
 /* ===== HERO ===== */
 .hero {
-  --h: 0;                                 /* scroll progress, set by main.js */
+  --h: 0; /* scroll progress, set by main.js */
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -114,7 +171,8 @@ body.scrolled .topbar { transform: translateY(0); }
   gap: 1.25rem;
   text-align: center;
   padding: 3rem 1.5rem;
-  transform: translateY(calc(var(--h) * -120px)) scale(calc(1 - var(--h) * 0.12));
+  transform: translateY(calc(var(--h) * -120px))
+    scale(calc(1 - var(--h) * 0.12));
   opacity: calc(1 - var(--h) * 1.2);
 }
 
@@ -128,7 +186,9 @@ body.scrolled .topbar { transform: translateY(0); }
   color: var(--muted);
   animation: fadeUp 0.9s 0.15s ease both;
 }
-.hero .btn { animation: fadeUp 0.9s 0.3s ease both; }
+.hero .btn {
+  animation: fadeUp 0.9s 0.3s ease both;
+}
 
 /* Mini website that builds itself */
 .preview {
@@ -143,12 +203,32 @@ body.scrolled .topbar { transform: translateY(0); }
   box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
   animation: fadeUp 0.9s 0.45s ease both;
 }
-.preview-bar { display: flex; gap: 6px; padding: 0.6rem 0.8rem; border-bottom: 1px solid var(--edge); }
-.preview-bar span { width: 10px; height: 10px; border-radius: 50%; background: rgba(255, 255, 255, 0.2); }
-.preview-bar span:first-child { background: var(--gold); }
+.preview-bar {
+  display: flex;
+  gap: 6px;
+  padding: 0.6rem 0.8rem;
+  border-bottom: 1px solid var(--edge);
+}
+.preview-bar span {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+}
+.preview-bar span:first-child {
+  background: var(--gold);
+}
 
-.preview-page { padding: 0.9rem; display: grid; gap: 0.6rem; }
-.pv-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.6rem; }
+.preview-page {
+  padding: 0.9rem;
+  display: grid;
+  gap: 0.6rem;
+}
+.pv-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.6rem;
+}
 .pv {
   border-radius: 8px;
   background: var(--glass-light);
@@ -156,13 +236,31 @@ body.scrolled .topbar { transform: translateY(0); }
   opacity: 0;
   animation: buildIn 8s infinite;
 }
-.pv-nav    { height: 18px; animation-delay: 0.2s; }
-.pv-hero   { height: 70px; animation-delay: 0.8s; background: rgba(212, 169, 55, 0.18); }
-.pv-card   { height: 50px; }
-.pv-row .pv-card:nth-child(1) { animation-delay: 1.4s; }
-.pv-row .pv-card:nth-child(2) { animation-delay: 1.7s; }
-.pv-row .pv-card:nth-child(3) { animation-delay: 2s; }
-.pv-footer { height: 14px; animation-delay: 2.6s; }
+.pv-nav {
+  height: 18px;
+  animation-delay: 0.2s;
+}
+.pv-hero {
+  height: 70px;
+  animation-delay: 0.8s;
+  background: rgba(212, 169, 55, 0.18);
+}
+.pv-card {
+  height: 50px;
+}
+.pv-row .pv-card:nth-child(1) {
+  animation-delay: 1.4s;
+}
+.pv-row .pv-card:nth-child(2) {
+  animation-delay: 1.7s;
+}
+.pv-row .pv-card:nth-child(3) {
+  animation-delay: 2s;
+}
+.pv-footer {
+  height: 14px;
+  animation-delay: 2.6s;
+}
 
 .scroll-hint {
   margin-top: 1rem;
@@ -176,26 +274,60 @@ body.scrolled .topbar { transform: translateY(0); }
 /* ===== MAIN LAYOUT: dock | content | showcase ===== */
 .layout {
   display: grid;
-  grid-template-columns: 84px 1fr 300px;
+  grid-template-columns: 188px 84px minmax(0, 1fr) 300px;
   gap: 1.75rem;
-  max-width: 1300px;
+  max-width: 1516px;
   margin: 0 auto;
   padding: 2rem 1.5rem 4rem;
 }
 
-/* Side panels slide in from the edges when the layout comes into view */
-.dock, .showcase {
+/* ===== LEFT SIDE PANEL (empty for now) ===== */
+.side-panel {
+  position: sticky;
+  top: 5rem;
+  align-self: start;
+  height: var(--side-h, 480px); /* matched to the right boxes by main.js */
+  border-radius: var(--radius);
+  background: var(--glass);
+  border: 1px solid var(--edge);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
   opacity: 0;
-  transition: opacity 0.8s ease, transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+  transform: translateX(-60px);
+  transition:
+    opacity 0.8s ease,
+    transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
 }
-.dock { transform: translateX(-60px); }
-.showcase { transform: translateX(60px); }
-.layout.in-view .dock, .layout.in-view .showcase { opacity: 1; transform: none; }
+.layout.in-view .side-panel {
+  opacity: 1;
+  transform: none;
+}
+
+/* Side panels slide in from the edges when the layout comes into view */
+.dock,
+.showcase {
+  opacity: 0;
+  transition:
+    opacity 0.8s ease,
+    transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.dock {
+  transform: translateX(-60px);
+}
+.showcase {
+  transform: translateX(60px);
+}
+.layout.in-view .dock,
+.layout.in-view .showcase {
+  opacity: 1;
+  transform: none;
+}
 
 /* ===== LEFT ICON BAR (dock) ===== */
 .dock {
   position: sticky;
   top: 50vh;
+  z-index: 15; /* above the sections, so labels show in front */
   align-self: start;
   margin-top: 25vh;
   translate: 0 -50%;
@@ -212,7 +344,7 @@ body.scrolled .topbar { transform: translateY(0); }
 }
 
 .dock-item {
-  --s: 1;                                 /* size, set by main.js */
+  --s: 1; /* size, set by main.js */
   position: relative;
   width: 46px;
   height: 46px;
@@ -222,9 +354,25 @@ body.scrolled .topbar { transform: translateY(0); }
   background: var(--glass-light);
   border: 1px solid var(--edge);
   transform: scale(var(--s)) translateX(calc((var(--s) - 1) * 14px));
-  transition: transform 0.15s ease-out, background 0.2s;
+  transition:
+    transform 0.15s ease-out,
+    background 0.3s,
+    border-color 0.3s,
+    box-shadow 0.3s;
 }
-.dock-item:hover { background: rgba(212, 169, 55, 0.2); }
+.dock-item:hover {
+  background: rgba(212, 169, 55, 0.2);
+}
+
+/* Glow on the icon for the section you're on (set by main.js) */
+.dock-item.active {
+  background: rgba(212, 169, 55, 0.22);
+  border-color: var(--gold);
+  box-shadow: 0 0 16px rgba(212, 169, 55, 0.6);
+}
+.dock-item.active svg {
+  stroke: var(--gold);
+}
 
 .dock-item svg {
   width: 22px;
@@ -234,6 +382,7 @@ body.scrolled .topbar { transform: translateY(0); }
   stroke-width: 1.8;
   stroke-linecap: round;
   stroke-linejoin: round;
+  transition: stroke 0.3s;
 }
 
 /* Label pops out beside the icon */
@@ -245,17 +394,26 @@ body.scrolled .topbar { transform: translateY(0); }
   padding: 0.25rem 0.7rem;
   border-radius: 8px;
   font-size: 0.8rem;
-  background: var(--glass);
+  color: var(--text);
+  background: var(--green-deep);
   border: 1px solid var(--edge);
   opacity: 0;
   transform: translateX(-6px);
   pointer-events: none;
-  transition: opacity 0.2s, transform 0.2s;
+  transition:
+    opacity 0.2s,
+    transform 0.2s;
 }
-.dock-item:hover::after { opacity: 1; transform: none; }
+.dock-item:hover::after {
+  opacity: 1;
+  transform: none;
+}
 
 /* ===== MIDDLE SECTIONS ===== */
-.content { display: grid; gap: 1.75rem; }
+.content {
+  display: grid;
+  gap: 1.75rem;
+}
 
 .panel {
   padding: 2rem;
@@ -265,10 +423,14 @@ body.scrolled .topbar { transform: translateY(0); }
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
-  scroll-margin-top: 5rem;
 }
-.panel h2 { font-size: 1.8rem; margin-bottom: 1.25rem; }
-.panel p { margin-bottom: 0.5rem; }
+.panel h2 {
+  font-size: 1.8rem;
+  margin-bottom: 1.25rem;
+}
+.panel p {
+  margin-bottom: 0.5rem;
+}
 
 /* Empty space for sections filled in later */
 .placeholder {
@@ -291,10 +453,18 @@ body.scrolled .topbar { transform: translateY(0); }
   border: 1px solid var(--edge);
   border-top: 3px solid var(--gold);
   transform: perspective(800px) rotateX(var(--rx)) rotateY(var(--ry));
-  transition: transform 0.2s ease-out, box-shadow 0.3s;
+  transition:
+    transform 0.2s ease-out,
+    box-shadow 0.3s;
 }
-.card:hover { box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35); }
-.card h3 { color: var(--gold); margin-bottom: 0.4rem; font-size: 1.05rem; }
+.card:hover {
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+}
+.card h3 {
+  color: var(--gold);
+  margin-bottom: 0.4rem;
+  font-size: 1.05rem;
+}
 
 /* ===== RIGHT PREVIEW BOXES ===== */
 .showcase {
@@ -317,11 +487,20 @@ body.scrolled .topbar { transform: translateY(0); }
   -webkit-backdrop-filter: blur(14px);
   color: var(--text);
   text-decoration: none;
-  transition: box-shadow 0.3s, border-color 0.3s;
 }
-.show-box:hover { border-color: rgba(212, 169, 55, 0.5); box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35); }
-.show-box strong { display: block; font-family: "Sora", sans-serif; margin-top: 0.75rem; }
-.show-box span { font-size: 0.85rem; color: var(--muted); }
+.show-box:hover {
+  border-color: rgba(212, 169, 55, 0.5);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+}
+.show-box strong {
+  display: block;
+  font-family: "Sora", sans-serif;
+  margin-top: 0.75rem;
+}
+.show-box span {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
 
 .show-screen {
   position: relative;
@@ -333,17 +512,58 @@ body.scrolled .topbar { transform: translateY(0); }
 }
 
 /* 1. Builder demo: blocks appear one by one */
-.build-demo { display: grid; grid-template-columns: 1fr 2fr; grid-template-rows: 20px 1fr 16px; gap: 6px; padding: 8px; }
-.bd { border-radius: 5px; border: 1px dashed rgba(212, 169, 55, 0.6); opacity: 0; animation: buildIn 6s infinite; }
-.bd-1 { grid-column: 1 / 3; animation-delay: 0.2s; }
-.bd-2 { animation-delay: 0.9s; }
-.bd-3 { animation-delay: 1.5s; background: rgba(212, 169, 55, 0.12); }
-.bd-4 { grid-column: 1 / 3; animation-delay: 2.1s; }
+.build-demo {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  grid-template-rows: 20px 1fr 16px;
+  gap: 6px;
+  padding: 8px;
+}
+.bd {
+  border-radius: 5px;
+  border: 1px dashed rgba(212, 169, 55, 0.6);
+  opacity: 0;
+  animation: buildIn 6s infinite;
+}
+.bd-1 {
+  grid-column: 1 / 3;
+  animation-delay: 0.2s;
+}
+.bd-2 {
+  animation-delay: 0.9s;
+}
+.bd-3 {
+  animation-delay: 1.5s;
+  background: rgba(212, 169, 55, 0.12);
+}
+.bd-4 {
+  grid-column: 1 / 3;
+  animation-delay: 2.1s;
+}
 
-/* 2. Estimate demo: total ticks, chips pop in */
-.estimate-demo { display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 0.6rem; }
-.ed-total { font-family: "Sora", sans-serif; font-size: 1.6rem; font-weight: 700; color: var(--gold); }
-.ed-chips { display: flex; gap: 0.4rem; flex-wrap: wrap; justify-content: center; }
+/* 2. Estimate demo: chips and total are driven by main.js */
+.estimate-demo {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 0.6rem;
+}
+.ed-total {
+  font-family: "Sora", sans-serif;
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--gold);
+}
+.ed-total.bump {
+  animation: bump 0.35s ease;
+}
+.ed-chips {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
 .ed-chip {
   font-size: 0.7rem;
   padding: 0.15rem 0.6rem;
@@ -351,10 +571,15 @@ body.scrolled .topbar { transform: translateY(0); }
   border: 1px solid var(--edge);
   background: var(--glass-light);
   opacity: 0;
-  animation: chipIn 6s infinite;
+  transform: translateY(8px) scale(0.9);
+  transition:
+    opacity 0.4s ease,
+    transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
 }
-.ed-chip:nth-child(2) { animation-delay: 1.2s; }
-.ed-chip:nth-child(3) { animation-delay: 2.4s; }
+.ed-chip.on {
+  opacity: 1;
+  transform: none;
+}
 
 /* 3. Work demo: slides fade in turn */
 .wd-slide {
@@ -367,19 +592,45 @@ body.scrolled .topbar { transform: translateY(0); }
   opacity: 0;
   animation: slideCycle 9s infinite;
 }
-.wd-1 { background: linear-gradient(135deg, rgba(212, 169, 55, 0.25), transparent); }
-.wd-2 { background: linear-gradient(135deg, rgba(30, 140, 90, 0.35), transparent); animation-delay: 3s; }
-.wd-3 { background: linear-gradient(135deg, rgba(255, 255, 255, 0.12), transparent); animation-delay: 6s; }
+.wd-1 {
+  background: linear-gradient(135deg, rgba(212, 169, 55, 0.25), transparent);
+}
+.wd-2 {
+  background: linear-gradient(135deg, rgba(30, 140, 90, 0.35), transparent);
+  animation-delay: 3s;
+}
+.wd-3 {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.12), transparent);
+  animation-delay: 6s;
+}
 
 /* ===== SCROLL REVEAL (used by main.js) ===== */
 .reveal {
   opacity: 0;
   transform: translateY(40px);
-  transition: opacity 0.8s ease, transform 0.8s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.3s, border-color 0.3s;
+  transition:
+    opacity 0.8s ease,
+    transform 0.8s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.3s,
+    border-color 0.3s;
 }
-.reveal.visible { opacity: 1; transform: none; }
+.reveal.visible {
+  opacity: 1;
+  transform: none;
+}
+/* Centre panels fade with scroll position (main.js) */
+.panel.scroll-fade {
+  transition:
+    opacity 0.6s ease,
+    transform 0.6s ease,
+    box-shadow 0.3s,
+    border-color 0.3s;
+}
+
 /* Preview boxes keep their hover tilt once visible */
-.show-box.visible { transform: perspective(800px) rotateX(var(--rx)) rotateY(var(--ry)); }
+.show-box.visible {
+  transform: perspective(800px) rotateX(var(--rx)) rotateY(var(--ry));
+}
 
 /* ===== FOOTER ===== */
 footer {
@@ -389,21 +640,39 @@ footer {
   font-size: 0.9rem;
 }
 
+/* ===== COMPUTERS: room under Contact so it can reach the centre ===== */
+@media (min-width: 801px) and (pointer: fine) {
+  .content {
+    padding-bottom: 40vh;
+  } /* inside the grid row, so the side panels stay put */
+}
+
 /* ===== TABLETS: drop the right column under the content ===== */
 @media (max-width: 1100px) {
-  .layout { grid-template-columns: 84px 1fr; }
-  .showcase { grid-column: 2; position: static; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+  .layout {
+    grid-template-columns: 84px minmax(0, 1fr);
+  }
+  .showcase {
+    grid-column: 2;
+    position: static;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  }
+  .side-panel {
+    display: none;
+  }
 }
 
 /* ===== PHONES: horizontal sticky icon bar, previews above sections ===== */
 @media (max-width: 800px) {
-  .layout { grid-template-columns: 1fr; gap: 1.25rem; padding: 1rem 0.75rem 3rem; }
+  .layout {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+    padding: 1rem 0.75rem 3rem;
+  }
 
   .dock {
     order: 1;
-    position: sticky;
-    top: 3.6rem;                          /* just under the top bar */
-    z-index: 10;
+    top: 3.6rem; /* just under the top bar */
     margin-top: 0;
     translate: none;
     flex-direction: row;
@@ -411,46 +680,119 @@ footer {
     padding: 0.5rem;
     border-radius: 30px;
   }
-  .dock-item { width: 40px; height: 40px; transform: none; }
-  .dock-item::after { display: none; }
+  .dock-item {
+    width: 40px;
+    height: 40px;
+    transform: none;
+  }
+  .dock-item::after {
+    display: none;
+  }
 
-  .showcase { order: 2; grid-column: auto; grid-template-columns: 1fr; }
-  .content { order: 3; }
+  .showcase {
+    order: 2;
+    grid-column: auto;
+    grid-template-columns: 1fr;
+  }
+  .content {
+    order: 3;
+  }
 
-  .panel { padding: 1.4rem; }
-  .panel h2 { font-size: 1.5rem; }
-  .topbar { padding: 0.6rem 1rem; }
-  .topbar-brand { font-size: 0.95rem; }
+  .panel {
+    padding: 1.4rem;
+  }
+  .panel h2 {
+    font-size: 1.5rem;
+  }
+  .topbar {
+    padding: 0.6rem 1rem;
+  }
+  .topbar-brand {
+    font-size: 0.95rem;
+  }
 }
 
 /* ===== ANIMATIONS ===== */
 @keyframes fadeUp {
-  from { opacity: 0; transform: translateY(24px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 @keyframes buildIn {
-  0%, 5%   { opacity: 0; transform: scale(0.9); }
-  12%, 80% { opacity: 1; transform: scale(1); }
-  92%, 100% { opacity: 0; transform: scale(1); }
-}
-@keyframes chipIn {
-  0%, 5%   { opacity: 0; transform: translateY(8px); }
-  12%, 80% { opacity: 1; transform: none; }
-  92%, 100% { opacity: 0; }
+  0%,
+  5% {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  12%,
+  80% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  92%,
+  100% {
+    opacity: 0;
+    transform: scale(1);
+  }
 }
 @keyframes slideCycle {
-  0%   { opacity: 0; transform: scale(1.05); }
-  8%, 30% { opacity: 1; transform: scale(1); }
-  38%, 100% { opacity: 0; }
+  0% {
+    opacity: 0;
+    transform: scale(1.05);
+  }
+  8%,
+  30% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  38%,
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes bump {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.15);
+    color: #ffffff;
+  }
 }
 @keyframes bob {
-  0%, 100% { transform: translateY(0); }
-  50%      { transform: translateY(6px); }
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(6px);
+  }
 }
 
 /* Respect people who turn off motion in their system settings */
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { animation: none !important; transition: none !important; }
-  .reveal, .dock, .showcase, .pv, .bd, .ed-chip { opacity: 1 !important; transform: none !important; }
-  .wd-1 { opacity: 1; }
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+  .reveal,
+  .dock,
+  .showcase,
+  .pv,
+  .bd,
+  .ed-chip {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .wd-1 {
+    opacity: 1;
+  }
 }
