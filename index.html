@@ -57,8 +57,22 @@
 
     <!-- MAIN LAYOUT: icon bar left, sections middle, previews right -->
     <div class="layout">
-      <!-- Left side panel (empty for now, content TBD) -->
-      <aside class="side-panel" id="sidePanel" aria-hidden="true"></aside>
+      <!-- Left side panel: quick facts at a glance -->
+      <aside class="side-panel" id="sidePanel" aria-label="At a glance">
+        <p class="side-kicker">At a glance</p>
+        <div class="side-stat">
+          <span>Websites from</span>
+          <strong>J$30,000</strong>
+        </div>
+        <ul class="side-list">
+          <li>HTTPS and basic SEO included</li>
+          <li>Looks great on phones</li>
+          <li>Free contact form</li>
+          <li>Payment plans available</li>
+          <li>30% off for churches, schools and clubs</li>
+        </ul>
+        <a href="quiz.html" class="btn btn-small js-quiz">Get my estimate</a>
+      </aside>
       <!-- Left icon bar (horizontal and sticky on phones) -->
       <nav class="dock" id="dock" aria-label="Page sections">
         <a href="#services" class="dock-item" data-label="Services">
@@ -100,24 +114,214 @@
 
       <!-- Middle sections (blank ones get filled in later) -->
       <main class="content">
+        <!-- Starting prices match BUILD_PRICES / PRICES in js/quiz.js -->
         <section id="services" class="panel reveal">
           <h2>Services</h2>
-          <div class="placeholder"></div>
+          <p class="lead">
+            Pick the kind of site you need. Every build is designed for your
+            business, not dropped into a template.
+          </p>
+          <div class="cards">
+            <article class="card">
+              <h3>Portfolio &amp; Personal Brand</h3>
+              <p>
+                For creatives, content creators, freelancers and job seekers.
+              </p>
+              <p class="price">From <strong>J$40,000</strong></p>
+            </article>
+            <article class="card">
+              <h3>Small Business</h3>
+              <p>
+                Shops, salons, barbers, restaurants, mechanics and local
+                services.
+              </p>
+              <p class="price">From <strong>J$60,000</strong></p>
+            </article>
+            <article class="card">
+              <h3>Event or Landing Page</h3>
+              <p>One page for an event, a launch or a promotion.</p>
+              <p class="price">From <strong>J$30,000</strong></p>
+            </article>
+            <article class="card">
+              <h3>Community &amp; Organisation</h3>
+              <p>
+                Churches, clubs, schools and charities, with a community
+                discount.
+              </p>
+              <p class="price">From <strong>J$50,000</strong></p>
+            </article>
+          </div>
+
+          <div class="extras">
+            <div>
+              <h3>Included in every build</h3>
+              <ul class="check-list">
+                <li>HTTPS and basic security</li>
+                <li>Basic SEO</li>
+                <li>Mobile-friendly design</li>
+                <li>Contact form</li>
+              </ul>
+            </div>
+            <div>
+              <h3>Add-ons</h3>
+              <ul class="addon-list">
+                <li><span>Domain (1 year)</span><b>J$3,000</b></li>
+                <li><span>Logo design</span><b>J$15,000</b></li>
+                <li><span>Google Analytics setup</span><b>J$5,000</b></li>
+                <li><span>Social media setup</span><b>J$10,000</b></li>
+                <li><span>Advanced SEO</span><b>J$9,000/mo</b></li>
+              </ul>
+            </div>
+          </div>
         </section>
 
         <section id="how" class="panel reveal">
           <h2>How it works</h2>
-          <div class="placeholder"></div>
+          <ol class="steps-list">
+            <li class="step">
+              <span class="step-num">1</span>
+              <div>
+                <h3>Answer a few questions</h3>
+                <p>
+                  Tell us about your site and watch your estimate update as you
+                  go. It takes a few minutes.
+                </p>
+              </div>
+            </li>
+            <li class="step">
+              <span class="step-num">2</span>
+              <div>
+                <h3>We talk it through</h3>
+                <p>
+                  We go over your answers by call or WhatsApp, agree on the
+                  details and settle the price.
+                </p>
+              </div>
+            </li>
+            <li class="step">
+              <span class="step-num">3</span>
+              <div>
+                <h3>We design and build</h3>
+                <p>
+                  You see previews along the way and ask for changes before
+                  anything goes live.
+                </p>
+              </div>
+            </li>
+            <li class="step">
+              <span class="step-num">4</span>
+              <div>
+                <h3>Launch and look after</h3>
+                <p>
+                  Your site goes live. Businesses and organisations can keep it
+                  updated with an ongoing plan.
+                </p>
+              </div>
+            </li>
+          </ol>
         </section>
 
         <section id="builder" class="panel reveal">
           <h2>Website Builder</h2>
-          <div class="placeholder"></div>
+          <p class="lead">
+            Sketch your site here. Pick a type, add sections, and see the
+            layout come together.
+          </p>
+          <div class="builder">
+            <div class="builder-controls">
+              <p class="builder-label">1. What kind of site?</p>
+              <div class="pill-group" id="builderType">
+                <button type="button" class="pill" data-type="personal">
+                  Portfolio
+                </button>
+                <button type="button" class="pill" data-type="business">
+                  Business
+                </button>
+                <button type="button" class="pill" data-type="event">
+                  Event
+                </button>
+                <button type="button" class="pill" data-type="organisation">
+                  Organisation
+                </button>
+              </div>
+
+              <p class="builder-label">2. Add sections</p>
+              <div class="pill-group" id="builderSections">
+                <button type="button" class="pill" data-section="about">
+                  About
+                </button>
+                <button type="button" class="pill" data-section="services">
+                  Services &amp; prices
+                </button>
+                <button type="button" class="pill" data-section="gallery">
+                  Gallery
+                </button>
+                <button type="button" class="pill" data-section="menu">
+                  Menu / products
+                </button>
+                <button type="button" class="pill" data-section="events">
+                  Events
+                </button>
+                <button type="button" class="pill" data-section="socials">
+                  Socials
+                </button>
+                <button type="button" class="pill" data-section="contact">
+                  Contact form
+                </button>
+              </div>
+
+              <a href="quiz.html" class="btn js-quiz">Price this site</a>
+            </div>
+
+            <div class="builder-preview" aria-hidden="true">
+              <div class="preview-bar">
+                <span></span><span></span><span></span>
+              </div>
+              <div class="builder-page" id="builderPage"></div>
+            </div>
+          </div>
         </section>
 
+        <!-- Swap the sample concepts for real client screenshots (put them in images/) -->
         <section id="work" class="panel reveal">
           <h2>Our Work</h2>
-          <div class="placeholder"></div>
+          <p class="lead">
+            Sample concepts for the kinds of sites we build. Client projects
+            will be featured here.
+          </p>
+          <div class="work-grid">
+            <article class="work-card">
+              <div class="work-thumb thumb-salon" aria-hidden="true">
+                <i class="wt-nav"></i><i class="wt-hero"></i>
+                <i class="wt-row"></i>
+              </div>
+              <h3>Salon &amp; Barber</h3>
+              <p>Services, prices, hours and a WhatsApp booking button.</p>
+              <span class="tag">Sample concept</span>
+            </article>
+            <article class="work-card">
+              <div class="work-thumb thumb-folio" aria-hidden="true">
+                <i class="wt-nav"></i><i class="wt-hero"></i>
+                <i class="wt-row"></i>
+              </div>
+              <h3>Creative Portfolio</h3>
+              <p>A clean gallery and links to every social in one place.</p>
+              <span class="tag">Sample concept</span>
+            </article>
+            <article class="work-card">
+              <div class="work-thumb thumb-church" aria-hidden="true">
+                <i class="wt-nav"></i><i class="wt-hero"></i>
+                <i class="wt-row"></i>
+              </div>
+              <h3>Church &amp; Community</h3>
+              <p>Service times, upcoming events and how to give.</p>
+              <span class="tag">Sample concept</span>
+            </article>
+          </div>
+          <p class="work-cta">
+            Want your business here?
+            <a href="quiz.html" class="js-quiz">Start your build &rarr;</a>
+          </p>
         </section>
 
         <section id="about" class="panel reveal">
@@ -125,11 +329,19 @@
           <div class="cards">
             <article class="card">
               <h3>Who We Are</h3>
-              <p>Placeholder: a short intro about you and the business.</p>
+              <!-- DRAFT: rewrite in your own words -->
+              <p>
+                A Jamaican web design studio building modern, animated websites
+                for people and small businesses ready to grow online.
+              </p>
             </article>
             <article class="card">
               <h3>What We Stand For</h3>
-              <p>Placeholder: your motto and goals.</p>
+              <!-- DRAFT: rewrite in your own words -->
+              <p>
+                Honest prices, clear explanations and sites you're proud to
+                share. No tech jargon, no surprises.
+              </p>
             </article>
             <article class="card">
               <h3>What We Offer</h3>
@@ -143,6 +355,17 @@
 
         <section id="contact" class="panel reveal">
           <h2>Contact</h2>
+          <p class="lead">
+            Questions first? Reach out any time, or get your estimate and we'll
+            follow up.
+          </p>
+          <!-- Replace the placeholder number and email (also in the wa.me link) -->
+          <div class="contact-actions">
+            <a href="https://wa.me/18760000000" class="btn" target="_blank" rel="noopener"
+              >Message on WhatsApp</a
+            >
+            <a href="quiz.html" class="btn btn-ghost js-quiz">Get an estimate</a>
+          </div>
           <p>
             Phone / WhatsApp: <a href="tel:+18760000000">+1 (876) 000-0000</a>
           </p>

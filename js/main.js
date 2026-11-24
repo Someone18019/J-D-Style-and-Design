@@ -412,6 +412,101 @@ if (demoTotal && demoChips.length === DEMO_VALUES.length) {
   }
 }
 
+// ===== WEBSITE BUILDER: pick a type and sections, the preview rebuilds =====
+// Big headline block for each site type
+const BUILDER_HERO = {
+  personal: "Your name + headline",
+  business: "Your business + Call / WhatsApp",
+  event: "Event name, date + sign-up",
+  organisation: "Your group + welcome",
+};
+// Sections switched on when a type is picked
+const BUILDER_DEFAULTS = {
+  personal: ["about", "gallery", "socials"],
+  business: ["services", "gallery", "contact"],
+  event: ["events", "contact"],
+  organisation: ["about", "events", "contact"],
+};
+// Every section, in the order it appears on the page
+const BUILDER_SECTIONS = {
+  about: { label: "About", kind: "block" },
+  services: { label: "Services & prices", kind: "tiles" },
+  gallery: { label: "Photo", kind: "tiles" },
+  menu: { label: "Item", kind: "tiles" },
+  events: { label: "Upcoming events", kind: "block" },
+  socials: { label: "Instagram · TikTok · YouTube", kind: "block" },
+  contact: { label: "Contact form", kind: "block" },
+};
+
+const builderPage = document.getElementById("builderPage");
+const typePills = [...document.querySelectorAll("#builderType .pill")];
+const sectionPills = [...document.querySelectorAll("#builderSections .pill")];
+const builder = { type: "business", sections: [] };
+
+function makeBlock(className, text, i) {
+  const el = document.createElement("div");
+  el.className = "bp " + className;
+  el.style.setProperty("--i", i);
+  if (text) el.textContent = text;
+  return el;
+}
+
+function renderBuilder() {
+  typePills.forEach((p) =>
+    p.setAttribute("aria-pressed", p.dataset.type === builder.type),
+  );
+  sectionPills.forEach((p) =>
+    p.setAttribute(
+      "aria-pressed",
+      builder.sections.includes(p.dataset.section),
+    ),
+  );
+
+  builderPage.innerHTML = "";
+  let i = 0;
+  builderPage.append(makeBlock("bp-nav", "Logo · Menu", i++));
+  builderPage.append(makeBlock("bp-hero", BUILDER_HERO[builder.type], i++));
+
+  Object.keys(BUILDER_SECTIONS).forEach((key) => {
+    if (!builder.sections.includes(key)) return;
+    const s = BUILDER_SECTIONS[key];
+    if (s.kind === "tiles") {
+      const row = makeBlock("bp-tiles", "", i++);
+      for (let n = 0; n < 3; n++) {
+        const tile = document.createElement("i");
+        if (n === 0) tile.textContent = s.label; // label the first tile only
+        row.append(tile);
+      }
+      builderPage.append(row);
+    } else {
+      builderPage.append(makeBlock("bp-block", s.label, i++));
+    }
+  });
+
+  builderPage.append(makeBlock("bp-footer", "", i++));
+}
+
+if (builderPage) {
+  typePills.forEach((pill) =>
+    pill.addEventListener("click", () => {
+      builder.type = pill.dataset.type;
+      builder.sections = [...BUILDER_DEFAULTS[builder.type]];
+      renderBuilder();
+    }),
+  );
+  sectionPills.forEach((pill) =>
+    pill.addEventListener("click", () => {
+      const key = pill.dataset.section;
+      builder.sections = builder.sections.includes(key)
+        ? builder.sections.filter((s) => s !== key)
+        : [...builder.sections, key];
+      renderBuilder();
+    }),
+  );
+  builder.sections = [...BUILDER_DEFAULTS[builder.type]];
+  renderBuilder();
+}
+
 // ===== ESTIMATE LINKS: fade the page out, then open the quiz =====
 document.querySelectorAll(".js-quiz").forEach((link) => {
   link.addEventListener("click", (e) => {
