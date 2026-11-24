@@ -536,3 +536,58 @@ body::before {
   background: rgba(212, 169, 55, 0.1) !important;
   color: var(--text) !important;
 }
+
+/* ===== ESTIMATOR ON THE END SCREEN ===== */
+.counter.inline {
+  position: static;
+  width: 100%;
+  max-width: none;
+  margin: 1.5rem 0 0.5rem;
+  box-shadow: none;
+  animation: estIn 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.counter.inline .counter-body {
+  max-height: none;
+  overflow: visible;
+}
+.counter.inline .counter-head {
+  cursor: default;
+}
+
+/* Price with its buttons */
+.est-price {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  white-space: nowrap;
+}
+.est-acts {
+  display: inline-flex;
+  gap: 0.3rem;
+}
+
+/* Edit, remove and add buttons */
+.est-act {
+  width: 1.6rem;
+  height: 1.6rem;
+  padding: 0;
+  border: 1px solid var(--edge);
+  border-radius: 8px;
+  background: var(--glass-light);
+  color: var(--gold);
+  font-size: 0.85rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s, transform 0.2s;
+}
+.est-act:hover {
+  background: rgba(212, 169, 55, 0.15);
+  border-color: var(--gold);
+  transform: translateY(-1px);
+}
+
+@keyframes estIn {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: none; }
+}
+

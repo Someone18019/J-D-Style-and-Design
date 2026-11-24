@@ -960,6 +960,7 @@ function swapTo(index, direction) {
   stage.classList.add(direction === "back" ? "out-right" : "out-left");
   setTimeout(() => {
     onFinalScreen = false;
+    unmountCounter(); // estimator goes back to the corner
     state.index = index;
     state.reached = Math.max(state.reached, index);
     save();
@@ -1027,6 +1028,7 @@ async function restartQuiz() {
   setTimeout(() => {
     state = freshState();
     onFinalScreen = false;
+    unmountCounter(); // estimator goes back to the corner
     toolbar.classList.remove("open");
     renderQuestion("back");
     renderToolbar();
@@ -1143,7 +1145,7 @@ function buildSummary() {
         .map((it) => "<strong>" + it.name + "</strong>" + tagText(it.tag))
         .concat(extras),
     );
-
+  html += '<div id="estimateSlot"></div>';   // estimator moves in here
   // Not part of the primary payment
   html += noticeBox(
     "<strong>Not included in the primary payment:</strong> extra revisions or bigger changes " +
@@ -1193,12 +1195,7 @@ function showEndScreen() {
   setTimeout(() => {
     onFinalScreen = true;
     save();
-    stage.innerHTML =
-      '<div class="q-card"><h1>Your answers are saved</h1>' +
-      '<p class="help">Check your estimate in the estimator box, or use the steps list to revisit your answers.</p>' +
-      '<h2 style="color:var(--green);font-size:1.3rem;margin-top:1rem">What\'s included</h2>' +
-      buildSummary() +
-      "</div>";
+    renderEndContent(); // draws the summary and moves the estimator in
     stage.classList.remove("out-left");
     void stage.offsetWidth;
     stage.classList.add("in-right");
@@ -1360,6 +1357,7 @@ function priceText(it, billing) {
   return format(it.amount) + (billing === "recurring" ? "/mo" : "");
 }
 
+// ===== ESTIMATE ROWS: name, price, and edit/remove buttons =====
 function rowsFor(billing, small) {
   return items
     .filter((it) => it.billing === billing)
@@ -1371,8 +1369,10 @@ function rowsFor(billing, small) {
         it.name +
         ' <span class="tag">' +
         it.tag +
-        "</span></span><span>" +
+        "</span></span>" +
+        '<span class="est-price">' +
         priceText(it, billing) +
+        actionButtons(it) +
         "</span></li>",
     )
     .join("");
@@ -1399,6 +1399,24 @@ function renderBreakdown() {
       "</span>" +
       "</li>" +
       rowsFor("recurring", true);
+  }
+
+  // 2b. Add services (only when the estimator sits on the end screen)
+  if (counter.classList.contains("inline")) {
+    const extras = addableItems();
+    if (extras.length) {
+      html +=
+        '<li style="border:0;padding-top:0.9rem;font-weight:700;color:var(--gold)">Add services</li>' +
+        extras
+          .map(
+            (ex) =>
+              '<li style="font-size:0.9rem"><span>' + ex.name + "</span>" +
+              '<span class="est-price">' + format(ex.amount) +
+              ' <button class="est-act" data-act="add" data-key="' + ex.key + '" title="Add">+</button>' +
+              "</span></li>",
+          )
+          .join("");
+    }
   }
 
   // 3. Placeholder note
@@ -1469,9 +1487,11 @@ document.getElementById("counterHead").addEventListener("click", () => {
   const open = counter.classList.toggle("open");
   document.getElementById("counterHead").setAttribute("aria-expanded", open);
   counter.classList.remove("scrollable");
-  if (open) setTimeout(() => {
-    if (counter.classList.contains("open")) counter.classList.add("scrollable");
-  }, 800);   // match the 0.8s open animation
+  if (open)
+    setTimeout(() => {
+      if (counter.classList.contains("open"))
+        counter.classList.add("scrollable");
+    }, 800); // match the 0.8s open animation
   updateRecurringLine(); // hide the small line while expanded
 });
 
@@ -1493,6 +1513,144 @@ function placeCounter() {
 }
 dockCounter.addEventListener("change", placeCounter);
 placeCounter();
+
+// ===== ESTIMATOR ON THE END SCREEN: add, remove, edit =====
+
+// Which question each item comes from, and whether it can be removed
+function itemActions(it) {
+  const rec = RECOMMENDED_OPTIONS.find((o) => o.label === it.name);
+  if (rec) return { edit: "recommended", remove: () => {
+    state.answers.recommended = (state.answers.recommended || []).filter((v) => v !== rec.value);
+  } };
+  if (it.name === "Logo design") return { edit: "logo", remove: () => { delete state.answers.logo; } };
+  if (it.tag === "Base") return { edit: "siteType" };
+  if (it.name === "Contact form") return { edit: "enquiries" };
+  if (it.name.includes("domain") || it.name.includes("Domain") || it.name.includes("Subdomain")) return { edit: "hasDomain" };
+  return {};   // mandatory and discount rows: locked
+}
+
+// The pencil and cross buttons on each row
+function actionButtons(it) {
+  if (!counter.classList.contains("inline")) return "";
+  const i = items.indexOf(it);
+  const a = itemActions(it);
+  let b = "";
+  if (a.edit) b += ' <button class="est-act" data-act="edit" data-i="' + i + '" title="Edit">✎</button>';
+  if (a.remove) b += ' <button class="est-act" data-act="remove" data-i="' + i + '" title="Remove">×</button>';
+  return b ? '<span class="est-acts">' + b + "</span>" : "";
+}
+
+// Extras not picked yet
+function addableItems() {
+  const type = state.answers.siteType;
+  const chosen = state.answers.recommended || [];
+  const list = RECOMMENDED_OPTIONS
+    .filter((o) => !chosen.includes(o.value))
+    .filter((o) => o.value !== "ownDomain" || SUBDOMAIN_TYPES.includes(type))
+    .map((o) => ({ key: o.value, name: o.label, amount: PRICES[o.value] }));
+  if (state.answers.logo !== "wantMade") list.push({ key: "logo", name: "Logo design", amount: LOGO_PRICE });
+  return list;
+}
+
+// Jump to a question by its id, in edit mode
+let editing = false;
+let editSnapshot = null;
+function goToQuestion(id) {
+  const index = visibleQuestions().findIndex((q) => q.id === id);
+  if (index === -1) return;
+  if (!editing) {
+    editing = true;
+    editSnapshot = JSON.parse(JSON.stringify(state.answers));
+  }
+  swapTo(index);
+}
+
+// After any change: save, redraw, and send them back if something is now missing
+function changeEstimate() {
+  save();
+  updateCounter();
+  if (items.some((it) => it.billing === "recurring") && !state.answers.paymentPlan) {
+    goToQuestion("paymentPlan");
+  } else if (!state.answers.logo) {
+    goToQuestion("logo");
+  }
+}
+
+// Clicks on the pencil, cross and plus buttons
+document.getElementById("breakdown").addEventListener("click", (e) => {
+  const btn = e.target.closest(".est-act");
+  if (!btn) return;
+  const act = btn.dataset.act;
+  if (act === "add") {
+    if (btn.dataset.key === "logo") state.answers.logo = "wantMade";
+    else state.answers.recommended = [...(state.answers.recommended || []), btn.dataset.key];
+    changeEstimate();
+    return;
+  }
+  const a = itemActions(items[Number(btn.dataset.i)]);
+  if (act === "remove" && a.remove) { a.remove(); changeEstimate(); }
+  if (act === "edit" && a.edit) goToQuestion(a.edit);
+});
+
+// Move the estimator into the end screen, and back to the corner
+let counterHome = null;
+function mountCounter() {
+  const slot = document.getElementById("estimateSlot");
+  if (!slot) return;
+  if (!counterHome) counterHome = counter.parentNode;
+  slot.appendChild(counter);
+  counter.classList.add("inline", "open");
+  updateCounter();
+}
+function unmountCounter() {
+  if (!counterHome) return;
+  counterHome.appendChild(counter);
+  counter.classList.remove("inline", "open", "scrollable");
+  updateCounter();
+}
+
+// Draw the end screen
+function renderEndContent() {
+  stage.innerHTML =
+    '<div class="q-card"><h1>Your answers are saved</h1>' +
+    '<p class="help">Check your estimate below. You can add, remove or edit items.</p>' +
+    buildSummary() +
+    "</div>";
+  mountCounter();
+}
+
+// ===== EDIT MODE: Back cancels, Next returns to the end =====
+function isAnswered(q) {
+  const v = state.answers[q.id];
+  return v !== undefined && v !== null && v !== "" && !(Array.isArray(v) && v.length === 0);
+}
+
+window.addEventListener("click", (e) => {
+  if (!editing) return;
+  const back = e.target.closest("#backBtn");
+  const next = e.target.closest("#nextBtn");
+  if (!back && !next) return;
+
+  if (back) {
+    // Cancel: put the old answers back and return to the end
+    state.answers = editSnapshot;
+  } else {
+    const qs = visibleQuestions();
+    if (!isAnswered(qs[state.index])) return;   // let the normal Next flag it
+    const missing = qs.findIndex((q) => !isAnswered(q));
+    if (missing !== -1) {
+      e.stopImmediatePropagation();
+      swapTo(missing);   // new question first
+      return;
+    }
+  }
+  e.stopImmediatePropagation();
+  editing = false;
+  editSnapshot = null;
+  save();
+  updateCounter();
+  showEndScreen();
+}, true);
 
 // ===== START =====
 // If old saved answers break the page, clear them and start fresh automatically
