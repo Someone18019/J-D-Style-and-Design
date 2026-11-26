@@ -1,0 +1,286 @@
+/* ===== INVOICE / RECEIPT DOCUMENT (paper style, printable) =====
+   Used by the dashboard preview and the client invoice page.
+   --accent comes from Settings (invoice colour). */
+.doc {
+  --accent: #d4a937;
+  --ink: #1c2b22;
+  --soft: #5f7368;
+  --line: #e3e8e4;
+  background: #fff;
+  color: var(--ink);
+  border-radius: 12px;
+  padding: 2.25rem;
+  font-family: "Inter", "Segoe UI", Arial, sans-serif;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+  position: relative;
+  overflow: hidden;
+}
+.doc h2,
+.doc h4,
+.doc strong {
+  font-family: "Sora", "Segoe UI", sans-serif;
+}
+.doc h4 {
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--soft);
+  margin-bottom: 0.35rem;
+}
+
+.doc-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 3px solid var(--accent);
+}
+.doc-brand {
+  display: flex;
+  gap: 0.8rem;
+  align-items: center;
+}
+.doc-brand small {
+  display: block;
+  color: var(--soft);
+  font-size: 0.75rem;
+  max-width: 28ch;
+}
+.doc-logo {
+  display: grid;
+  place-items: center;
+  min-width: 48px;
+  height: 48px;
+  padding: 0 0.4rem;
+  border-radius: 12px;
+  background: var(--accent);
+  color: #fff;
+  font-family: "Sora", sans-serif;
+  font-weight: 700;
+}
+.doc-title {
+  text-align: right;
+}
+.doc-title h2 {
+  font-size: 1.6rem;
+  line-height: 1.1;
+  color: var(--accent);
+}
+.doc-title p {
+  color: var(--soft);
+}
+
+.doc-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 1.5rem;
+  margin: 1.5rem 0;
+}
+.doc-dates p {
+  display: flex;
+  justify-content: space-between;
+  gap: 1.5rem;
+}
+.doc-dates span {
+  color: var(--soft);
+}
+
+.doc-lines {
+  width: 100%;
+  border-collapse: collapse;
+}
+.doc-lines th {
+  text-align: left;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--soft);
+  padding: 0.5rem 0.4rem;
+  border-bottom: 1px solid var(--line);
+}
+.doc-lines td {
+  padding: 0.6rem 0.4rem;
+  border-bottom: 1px solid var(--line);
+  vertical-align: top;
+}
+.doc .num {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.doc-totals {
+  margin: 1rem 0 0 auto;
+  width: min(280px, 100%);
+}
+.doc-totals p {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.25rem 0.4rem;
+}
+.doc-totals .grand {
+  margin-top: 0.4rem;
+  padding: 0.6rem 0.4rem;
+  border-top: 2px solid var(--ink);
+  font-weight: 700;
+  font-size: 1.05rem;
+}
+
+.doc-pay,
+.doc-notes,
+.doc-paid {
+  margin-top: 1.25rem;
+  padding: 0.9rem 1rem;
+  border-radius: 10px;
+  background: #f5f7f5;
+}
+.doc-paid {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: #eef8f1;
+}
+.stamp {
+  padding: 0.3rem 0.8rem;
+  border: 3px solid #1f9d55;
+  border-radius: 8px;
+  color: #1f9d55;
+  font-family: "Sora", sans-serif;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  transform: rotate(-6deg);
+}
+
+.doc-foot {
+  margin-top: 1.75rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--line);
+  text-align: center;
+  color: var(--soft);
+  font-size: 0.8rem;
+}
+/* Client ID in fine print */
+.fine {
+  margin-top: 0.5rem;
+  font-size: 0.68rem;
+  letter-spacing: 0.04em;
+  color: #8a988f;
+}
+
+/* Classic template: centred header, plain logo, serif title */
+.doc-classic .doc-head {
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  border-bottom: 1px solid var(--ink);
+}
+.doc-classic .doc-brand {
+  flex-direction: column;
+}
+.doc-classic .doc-logo {
+  background: none;
+  color: var(--accent);
+  border: 2px solid var(--accent);
+  border-radius: 50%;
+}
+.doc-classic .doc-title {
+  text-align: center;
+}
+.doc-classic .doc-title h2 {
+  font-family: Georgia, "Times New Roman", serif;
+  color: var(--ink);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  font-size: 1.2rem;
+}
+.doc-classic .doc-lines th {
+  border-bottom: 1px solid var(--ink);
+}
+
+@media (max-width: 560px) {
+  .doc {
+    padding: 1.25rem;
+  }
+  .doc-head,
+  .doc-meta {
+    flex-direction: column;
+  }
+  .doc-title {
+    text-align: left;
+  }
+}
+
+/* Printing / Save as PDF: only the document */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .print-area,
+  .print-area * {
+    visibility: visible;
+  }
+  .print-area {
+    position: absolute;
+    inset: 0;
+  }
+  .doc {
+    box-shadow: none;
+    border-radius: 0;
+  }
+}
+
+/* ===== PAYMENT SCHEDULE ON THE DOCUMENT ===== */
+.doc-kind {
+  margin-top: 0.2rem;
+  font-weight: 600;
+  color: var(--ink) !important;
+  font-size: 0.85rem;
+}
+.doc-totals .project {
+  color: var(--soft);
+  border-top: 1px dashed var(--line);
+  margin-top: 0.3rem;
+  padding-top: 0.5rem;
+}
+.doc-schedule {
+  margin-top: 1.25rem;
+}
+.doc-schedule table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+}
+.doc-schedule td {
+  padding: 0.5rem 0.4rem;
+  border-bottom: 1px solid var(--line);
+  vertical-align: top;
+}
+.doc-schedule small {
+  display: block;
+  color: var(--soft);
+  font-size: 0.72rem;
+}
+.doc-schedule tr.this td {
+  background: color-mix(in srgb, var(--accent) 12%, #fff);
+  font-weight: 600;
+}
+.doc-schedule tr.done td:last-child {
+  color: #1f9d55;
+  font-weight: 600;
+}
+.doc-schedule tr.sum td {
+  border-bottom: 0;
+  border-top: 2px solid var(--ink);
+  font-weight: 700;
+}
+
+/* Refunds on a receipt */
+.doc-refund {
+  margin-top: 1.25rem;
+  padding: 0.9rem 1rem;
+  border-radius: 10px;
+  background: #fdf3f3;
+  border-left: 4px solid #d64545;
+}

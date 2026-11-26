@@ -527,6 +527,15 @@ body.scrolled .topbar .btn {
 }
 
 /* ===== SERVICES ===== */
+/* Four service cards in a 2 x 2 grid (one column on phones) */
+.cards-2x2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+@media (max-width: 560px) {
+  .cards-2x2 {
+    grid-template-columns: 1fr;
+  }
+}
 .price {
   margin-top: 0.9rem;
   font-size: 0.85rem;
@@ -567,38 +576,44 @@ body.scrolled .topbar .btn {
 
 /* ===== HOW IT WORKS: steps light up in turn ===== */
 .steps-list {
+  --step-gap: 1.5rem;
   list-style: none;
-  position: relative;
   display: grid;
-  gap: 1.5rem;
+  gap: var(--step-gap);
 }
-/* Gold line that grows down the numbers */
-.steps-list::before {
+/* Line from each number down to the next one (none after the last step):
+   ::before is the faint track, ::after is the gold that grows over it */
+.step:not(:last-child)::before,
+.step:not(:last-child)::after {
   content: "";
   position: absolute;
   left: 21px;
-  top: 22px;
-  bottom: 22px;
+  top: 22px; /* centre of this number */
+  height: calc(100% + var(--step-gap)); /* to the centre of the next number */
   width: 2px;
+  background: var(--edge);
+}
+.step:not(:last-child)::after {
   background: var(--gold);
   transform: scaleY(0);
   transform-origin: top;
-  transition: transform 1.8s cubic-bezier(0.22, 1, 0.36, 1) 0.3s;
+  transition: transform 0.5s ease-in-out var(--line-delay, 0s);
 }
-.steps-list::after {
-  content: "";
-  position: absolute;
-  left: 21px;
-  top: 22px;
-  bottom: 22px;
-  width: 2px;
-  background: var(--edge);
-  z-index: -1;
-}
-#how.visible .steps-list::before {
+#how.visible .step::after {
   transform: scaleY(1);
 }
+/* Each piece starts as its number lights up, reaching the next number in time */
+.step:nth-child(1) {
+  --line-delay: 0.3s;
+}
+.step:nth-child(2) {
+  --line-delay: 0.8s;
+}
+.step:nth-child(3) {
+  --line-delay: 1.3s;
+}
 .step {
+  position: relative;
   display: flex;
   gap: 1.1rem;
   align-items: flex-start;
@@ -611,6 +626,8 @@ body.scrolled .topbar .btn {
   margin: 0 !important;
 }
 .step-num {
+  position: relative;
+  z-index: 1; /* sits on top of the gold line */
   flex: none;
   width: 44px;
   height: 44px;
@@ -966,6 +983,64 @@ body.scrolled .topbar .btn {
   animation-delay: 6s;
 }
 
+/* ===== GLASS: frosted panels with a lit top edge and a sheen that follows the mouse ===== */
+.panel,
+.side-panel,
+.show-box,
+.dock,
+body.scrolled .topbar {
+  background:
+    linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.11) 0%,
+      rgba(255, 255, 255, 0.03) 45%,
+      rgba(255, 255, 255, 0.06) 100%
+    ),
+    rgba(6, 38, 26, 0.38);
+  backdrop-filter: blur(22px) saturate(170%);
+  -webkit-backdrop-filter: blur(22px) saturate(170%);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-top-color: rgba(255, 255, 255, 0.28); /* light catches the top edge */
+}
+.panel,
+.side-panel,
+.show-box {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.18),
+    inset 0 -18px 40px rgba(0, 0, 0, 0.12),
+    0 24px 60px rgba(0, 0, 0, 0.35);
+}
+body.scrolled .topbar {
+  border-width: 0 0 1px;
+}
+
+/* Sheen: a soft light spot under the mouse (position set by main.js) */
+.panel,
+.show-box {
+  position: relative;
+}
+.panel::before,
+.side-panel::before,
+.show-box::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: radial-gradient(
+    420px circle at var(--gx, 50%) var(--gy, -20%),
+    rgba(255, 255, 255, 0.1),
+    transparent 60%
+  );
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+.panel:hover::before,
+.side-panel:hover::before,
+.show-box:hover::before {
+  opacity: 1;
+}
+
 /* ===== SCROLL REVEAL (used by main.js) ===== */
 .reveal {
   opacity: 0;
@@ -1170,7 +1245,7 @@ footer {
   .wd-1 {
     opacity: 1;
   }
-  .steps-list::before {
+  .step::after {
     transform: none !important;
   }
 }

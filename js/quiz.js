@@ -130,8 +130,8 @@ const SUBDOMAIN_TYPES = ["event"];
 
 // Community discount: these organisation kinds get money off the website build
 const DISCOUNT_ORG_KINDS = ["church", "school", "club", "students"];
-const COMMUNITY_DISCOUNT = 0.3; // 30% off the build
-const COMMUNITY_DISCOUNT_ONGOING = 0.4; // 40% off if they also take an ongoing plan
+let COMMUNITY_DISCOUNT = 0.3; // 30% off the build
+let COMMUNITY_DISCOUNT_ONGOING = 0.4; // 40% off if they also take an ongoing plan
 
 // "What is the site for?" options change with the site type
 const PURPOSE_BY_TYPE = {
@@ -518,7 +518,7 @@ const QUESTIONS = [
     help: "These are optional, but they help your site get found and grow. Pick any that suit you, or none.",
     required: false,
     options: (answers) =>
-      RECOMMENDED_OPTIONS.filter((o) => !o.onlyIf || o.onlyIf(answers)),
+      RECOMMENDED_OPTIONS.filter((o) => addonOn(o.value) && (!o.onlyIf || o.onlyIf(answers))),
   },
   {
     id: "paymentPlan",
@@ -550,10 +550,10 @@ const MANDATORY = [
 ];
 
 // Domain, added only once the domain is settled
-const DOMAIN_PRICE = 3000;
+let DOMAIN_PRICE = 3000;
 
 // Logo design, added when they ask for one
-const LOGO_PRICE = 15000;
+let LOGO_PRICE = 15000;
 
 // Recommended services (Advanced SEO is a monthly price)
 const PRICES = {
@@ -562,6 +562,31 @@ const PRICES = {
   analytics: 5000,
   socials: 10000,
 };
+
+// ===== PRICES FROM THE DASHBOARD (Pricing and services) =====
+// The numbers above are the fallback. When prices have been saved in the
+// dashboard (js/store.js), they replace them here.
+const ADDON_ON = { ownDomain: true, advancedSeo: true, analytics: true, socials: true };
+if (typeof Store !== "undefined") {
+  const cat = Store.load().settings.catalog;
+  Object.assign(BUILD_PRICES, cat.build);
+  MANDATORY[0].amount = cat.https;
+  MANDATORY[1].amount = cat.seo;
+  DOMAIN_PRICE = cat.domain;
+  LOGO_PRICE = cat.logo;
+  Object.keys(cat.addons).forEach((k) => {
+    PRICES[k] = cat.addons[k].price;
+    ADDON_ON[k] = cat.addons[k].on;
+  });
+  COMMUNITY_DISCOUNT = cat.communityDiscount / 100;
+  COMMUNITY_DISCOUNT_ONGOING = cat.communityDiscountOngoing / 100;
+  Object.assign(PLAN_DISCOUNTS, cat.planDiscounts);
+  PLAN_CAPS.yearly = cat.yearlyCap;
+}
+// Add-ons switched off in the dashboard are hidden from the quiz
+function addonOn(value) {
+  return ADDON_ON[value] !== false;
+}
 
 // ===== STATE =====
 // "flagged" = steps the client pressed Next past while empty (these show red or yellow)
@@ -1026,9 +1051,13 @@ async function restartQuiz() {
   stage.classList.remove("in-left", "in-right");
   stage.classList.add("out-right");
   setTimeout(() => {
+    const keepId = state.clientId; // same person, same client ID
     state = freshState();
+    if (keepId) state.clientId = keepId;
+    save();
     onFinalScreen = false;
     unmountCounter(); // estimator goes back to the corner
+    showClientFine();
     toolbar.classList.remove("open");
     renderQuestion("back");
     renderToolbar();
@@ -1146,6 +1175,13 @@ function buildSummary() {
         .concat(extras),
     );
   html += '<div id="estimateSlot"></div>';   // estimator moves in here
+  // How the primary payment is split (matches SCHEDULE in js/store.js)
+  const pct = typeof Store !== "undefined" ? Store.SCHEDULE.map((x) => x.pct) : [15, 35, 50];
+  html += noticeBox(
+    "<strong>Paid in three parts:</strong> a " + pct[0] + "% commitment fee to start, " + pct[1] +
+      "% when your site is halfway done, and the final " + pct[2] +
+      "% on completion, when ownership of the site is handed over to you.",
+  );
   // Not part of the primary payment
   html += noticeBox(
     "<strong>Not included in the primary payment:</strong> extra revisions or bigger changes " +
@@ -1312,7 +1348,7 @@ function buildItems() {
 
   chosen.forEach((value) => {
     const o = RECOMMENDED_OPTIONS.find((x) => x.value === value);
-    if (o) {
+    if (o && addonOn(value)) {
       list.push({
         name: o.label,
         amount: PRICES[value],
@@ -1545,7 +1581,7 @@ function addableItems() {
   const type = state.answers.siteType;
   const chosen = state.answers.recommended || [];
   const list = RECOMMENDED_OPTIONS
-    .filter((o) => !chosen.includes(o.value))
+    .filter((o) => !chosen.includes(o.value) && addonOn(o.value))
     .filter((o) => o.value !== "ownDomain" || SUBDOMAIN_TYPES.includes(type))
     .map((o) => ({ key: o.value, name: o.label, amount: PRICES[o.value] }));
   if (state.answers.logo !== "wantMade") list.push({ key: "logo", name: "Logo design", amount: LOGO_PRICE });
@@ -1615,9 +1651,124 @@ function renderEndContent() {
     '<div class="q-card"><h1>Your answers are saved</h1>' +
     '<p class="help">Check your estimate below. You can add, remove or edit items.</p>' +
     buildSummary() +
+    clientBoxHTML() +
     "</div>";
   mountCounter();
+  showClientFine();
 }
+
+// ===== CLIENT DETAILS: collected at the end, saved with a client ID =====
+// The client record (and its ID) is kept in the demo store (js/store.js)
+function currentClient() {
+  if (!state.clientId || typeof Store === "undefined") return null;
+  return Store.load().clients.find((c) => c.id === state.clientId) || null;
+}
+
+// The estimate as plain rows, saved with the client for invoicing
+function estimateSnapshot() {
+  return items
+    .filter((it) => it.amount !== null)
+    .map((it) => ({ name: it.name, amount: it.amount, billing: it.billing }));
+}
+
+function clientBoxHTML() {
+  const c = currentClient();
+  if (c) {
+    return (
+      goldLine() +
+      '<section class="client-box done">' +
+      "<h2>Request sent</h2>" +
+      "<p>Thanks, " + Store.esc(c.name || c.business) + ". We'll contact you on " +
+      Store.esc(c.phone) + " to go over your site and confirm the price.</p>" +
+      '<p class="client-id">Your client ID <b>' + Store.esc(c.id) + "</b></p>" +
+      '<button type="button" class="nav-btn" id="updateEstimate">Send my updated estimate</button>' +
+      '<p class="fine">Client ID: ' + Store.esc(c.id) + "</p></section>"
+    );
+  }
+  return (
+    goldLine() +
+    '<section class="client-box">' +
+    "<h2>Send your request</h2>" +
+    '<p class="help">Leave your details and we\'ll reach out to go over your site. ' +
+    "You'll get a client ID to quote when you contact us.</p>" +
+    '<form id="clientForm" novalidate>' +
+    '<label>Your name<input name="name" autocomplete="name" /></label>' +
+    '<label>Business or group name <small>(if any)</small><input name="business" autocomplete="organization" /></label>' +
+    '<label>Phone / WhatsApp<input name="phone" type="tel" autocomplete="tel" required /></label>' +
+    '<label>Email <small>(optional)</small><input name="email" type="email" autocomplete="email" /></label>' +
+    '<label class="agree"><input type="checkbox" name="agree" /> I have read and agree to the ' +
+    '<a href="terms.html" target="_blank" rel="noopener">Terms and Conditions</a></label>' +
+    '<p class="form-error" id="clientError" role="alert"></p>' +
+    '<button type="submit" class="nav-btn primary">Send request</button>' +
+    "</form></section>"
+  );
+}
+
+// Client ID in fine print under the estimate
+function showClientFine() {
+  const el = document.getElementById("clientFine");
+  if (!el) return;
+  const c = currentClient();
+  el.textContent = c ? "Client ID: " + c.id : "";
+}
+
+stage.addEventListener("submit", (e) => {
+  if (e.target.id !== "clientForm") return;
+  e.preventDefault();
+  const f = e.target;
+  const val = (n) => f.elements[n].value.trim();
+  const error = document.getElementById("clientError");
+
+  if (!val("name") && !val("business")) {
+    error.textContent = "Please enter your name or your business name.";
+    return f.elements.name.focus();
+  }
+  if (val("phone").replace(/\D/g, "").length < 7) {
+    error.textContent = "Please enter a phone number we can reach you on.";
+    return f.elements.phone.focus();
+  }
+  if (val("email") && !f.elements.email.checkValidity()) {
+    error.textContent = "That email doesn't look right. You can also leave it blank.";
+    return f.elements.email.focus();
+  }
+  if (!f.elements.agree.checked) {
+    error.textContent = "Please agree to the Terms and Conditions to send your request.";
+    return f.elements.agree.focus();
+  }
+
+  const type = SITE_TYPE_OPTIONS.find((o) => o.value === state.answers.siteType);
+  const client = Store.addClient({
+    name: val("name"),
+    business: val("business"),
+    phone: val("phone"),
+    email: val("email"),
+    source: "quiz",
+    siteType: type ? type.label : "",
+    plan: hasRecurring(state.answers) ? planLabel() : "",
+    planKey: hasRecurring(state.answers) ? state.answers.paymentPlan || "" : "",
+    estimate: estimateSnapshot(),
+    agreedToTerms: new Date().toISOString(),
+  });
+  state.clientId = client.id;
+  save();
+  renderEndContent();
+});
+
+// Already sent: push the latest estimate to their client record
+stage.addEventListener("click", (e) => {
+  if (e.target.id !== "updateEstimate") return;
+  Store.update((data) => {
+    const c = data.clients.find((x) => x.id === state.clientId);
+    if (c) {
+      c.estimate = estimateSnapshot();
+      c.plan = hasRecurring(state.answers) ? planLabel() : "";
+      c.planKey = hasRecurring(state.answers) ? state.answers.paymentPlan || "" : "";
+      c.updatedAt = new Date().toISOString();
+    }
+  });
+  e.target.textContent = "Estimate updated ✓";
+  e.target.disabled = true;
+});
 
 // ===== EDIT MODE: Back cancels, Next returns to the end =====
 function isAnswered(q) {
@@ -1658,6 +1809,7 @@ try {
   renderQuestion("next");
   renderToolbar();
   updateCounter();
+  showClientFine();
 } catch (err) {
   console.warn("Saved quiz answers didn't load, starting fresh:", err);
   try {

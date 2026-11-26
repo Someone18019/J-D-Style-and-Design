@@ -6,6 +6,24 @@ const reduceMotion = window.matchMedia(
 const finePointer = window.matchMedia("(pointer: fine)").matches; // true for a mouse
 const desktop = window.matchMedia("(min-width: 801px)");
 
+// ===== PRICES FROM THE DASHBOARD (Pricing and services) =====
+// Elements with data-price="build.business" etc. show the current price.
+// Without saved prices, the numbers written in index.html stay as they are.
+if (typeof Store !== "undefined") {
+  const cat = Store.load().settings.catalog;
+  const get = (path) => path.split(".").reduce((o, k) => (o == null ? o : o[k]), cat);
+  document.querySelectorAll("[data-price]").forEach((el) => {
+    const v = el.dataset.price === "minBuild" ? Math.min(...Object.values(cat.build)) : get(el.dataset.price);
+    if (typeof v === "number") el.textContent = Store.money(v) + (el.dataset.suffix || "");
+  });
+  document.querySelectorAll("[data-pct]").forEach((el) => (el.textContent = cat[el.dataset.pct] + "%"));
+  // Add-ons switched off in the dashboard disappear from the list
+  document.querySelectorAll("[data-addon]").forEach((el) => {
+    const a = cat.addons[el.dataset.addon];
+    if (a && !a.on) el.remove();
+  });
+}
+
 // ===== FOOTER YEAR =====
 document.getElementById("year").textContent = new Date().getFullYear();
 
@@ -410,6 +428,17 @@ if (demoTotal && demoChips.length === DEMO_VALUES.length) {
     runEstimateDemo();
     setInterval(runEstimateDemo, DEMO_LOOP_MS);
   }
+}
+
+// ===== GLASS SHEEN: light spot follows the mouse across each panel =====
+if (!reduceMotion && finePointer) {
+  document.querySelectorAll(".panel, .side-panel, .show-box").forEach((el) => {
+    el.addEventListener("pointermove", (e) => {
+      const r = el.getBoundingClientRect();
+      el.style.setProperty("--gx", e.clientX - r.left + "px");
+      el.style.setProperty("--gy", e.clientY - r.top + "px");
+    });
+  });
 }
 
 // ===== WEBSITE BUILDER: pick a type and sections, the preview rebuilds =====

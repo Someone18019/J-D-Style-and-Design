@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Dashboard | JD-Style and Design</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Sora:wght@600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/dashboard.css" />
+    <link rel="stylesheet" href="css/invoice.css" />
+  </head>
+  <body>
+    <div class="dash">
+      <!-- Left menu (a bar along the top on phones) -->
+      <aside class="side">
+        <a class="side-brand" href="index.html"
+          >JD-Style <span class="gold">and</span> Design</a
+        >
+        <label class="search">
+          <span class="sr-only">Search the dashboard</span>
+          <input type="search" id="search" placeholder="Search…  ( / )" autocomplete="off" />
+        </label>
+        <nav class="side-nav" aria-label="Dashboard">
+          <a href="#overview" data-view="overview">Overview</a>
+          <a href="#invoices" data-view="invoices">Invoices</a>
+          <a href="#subscriptions" data-view="subscriptions">Subscriptions</a>
+          <a href="#clients" data-view="clients">Clients</a>
+          <a href="#pricing" data-view="pricing">Pricing &amp; services</a>
+          <a href="#settings" data-view="settings">Settings</a>
+          <a href="terms.html" target="_blank" rel="noopener">Terms &amp; conditions ↗</a>
+        </nav>
+        <div class="side-demo">
+          <span class="badge">Demo</span>
+          <p>
+            Saved in this browser only. No real payments are made.
+          </p>
+          <button type="button" class="link-btn" id="seedBtn">Load sample data</button>
+          <button type="button" class="link-btn danger" id="resetBtn">Reset demo</button>
+        </div>
+      </aside>
+
+      <!-- Each view is drawn by js/dashboard.js -->
+      <main class="main" id="main"></main>
+    </div>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+    <script src="js/store.js"></script>
+    <script src="js/dashboard.js"></script>
+  </body>
+</html>

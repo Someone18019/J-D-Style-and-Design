@@ -1,0 +1,108 @@
+/* ===== TERMS AND CONDITIONS PAGE ===== */
+.terms {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 1.5rem;
+  display: grid;
+  gap: 1.5rem;
+}
+.terms-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+.terms-brand {
+  font-family: "Sora", sans-serif;
+  font-weight: 700;
+  color: var(--text);
+  text-decoration: none;
+}
+.terms-body {
+  padding: 2.25rem;
+  animation: rise 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.terms-body h1 {
+  font-size: 1.9rem;
+}
+.terms-body h2 {
+  font-size: 1.1rem;
+  color: var(--gold);
+  margin: 2rem 0 0.6rem;
+  scroll-margin-top: 1rem;
+}
+.terms-body p,
+.terms-body li {
+  color: rgba(232, 243, 236, 0.88);
+}
+.terms-body ul,
+.terms-body ol {
+  padding-left: 1.3rem;
+  display: grid;
+  gap: 0.45rem;
+  margin: 0.6rem 0;
+}
+.toc {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 0.3rem 1rem;
+  margin-top: 1.2rem;
+  padding: 1rem;
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.15);
+  border: 1px solid var(--edge);
+  font-size: 0.88rem;
+}
+.toc a {
+  color: var(--text);
+  text-decoration: none;
+}
+.toc a:hover {
+  color: var(--gold);
+}
+.sched-list b {
+  color: var(--text);
+}
+.terms-foot {
+  text-align: center;
+  padding-bottom: 1rem;
+}
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@media (max-width: 560px) {
+  .terms {
+    padding: 0.75rem;
+  }
+  .terms-body {
+    padding: 1.25rem;
+  }
+}
+@media print {
+  body {
+    background: #fff;
+    color: #000;
+  }
+  .terms-body {
+    box-shadow: none;
+    border: 0;
+    background: none;
+  }
+  .terms-body p,
+  .terms-body li,
+  .terms-body h2 {
+    color: #000;
+  }
+  .terms-top,
+  .toc,
+  .terms-foot {
+    display: none;
+  }
+}

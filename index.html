@@ -21,6 +21,7 @@
     <div class="bg-glow" aria-hidden="true"></div>
     <div class="bg-grid" aria-hidden="true"></div>
 
+
     <!-- TOP BAR: brand and button glide in once the hero scrolls away -->
     <header class="topbar" id="topbar">
       <a href="#top" class="topbar-brand"
@@ -62,14 +63,14 @@
         <p class="side-kicker">At a glance</p>
         <div class="side-stat">
           <span>Websites from</span>
-          <strong>J$30,000</strong>
+          <strong data-price="minBuild">J$30,000</strong>
         </div>
         <ul class="side-list">
           <li>HTTPS and basic SEO included</li>
           <li>Looks great on phones</li>
           <li>Free contact form</li>
           <li>Payment plans available</li>
-          <li>30% off for churches, schools and clubs</li>
+          <li><span data-pct="communityDiscount">30%</span> off for churches, schools and clubs</li>
         </ul>
         <a href="quiz.html" class="btn btn-small js-quiz">Get my estimate</a>
       </aside>
@@ -121,13 +122,13 @@
             Pick the kind of site you need. Every build is designed for your
             business, not dropped into a template.
           </p>
-          <div class="cards">
+          <div class="cards cards-2x2">
             <article class="card">
               <h3>Portfolio &amp; Personal Brand</h3>
               <p>
                 For creatives, content creators, freelancers and job seekers.
               </p>
-              <p class="price">From <strong>J$40,000</strong></p>
+              <p class="price">From <strong data-price="build.personal">J$40,000</strong></p>
             </article>
             <article class="card">
               <h3>Small Business</h3>
@@ -135,12 +136,12 @@
                 Shops, salons, barbers, restaurants, mechanics and local
                 services.
               </p>
-              <p class="price">From <strong>J$60,000</strong></p>
+              <p class="price">From <strong data-price="build.business">J$60,000</strong></p>
             </article>
             <article class="card">
               <h3>Event or Landing Page</h3>
               <p>One page for an event, a launch or a promotion.</p>
-              <p class="price">From <strong>J$30,000</strong></p>
+              <p class="price">From <strong data-price="build.event">J$30,000</strong></p>
             </article>
             <article class="card">
               <h3>Community &amp; Organisation</h3>
@@ -148,7 +149,7 @@
                 Churches, clubs, schools and charities, with a community
                 discount.
               </p>
-              <p class="price">From <strong>J$50,000</strong></p>
+              <p class="price">From <strong data-price="build.organisation">J$50,000</strong></p>
             </article>
           </div>
 
@@ -165,11 +166,11 @@
             <div>
               <h3>Add-ons</h3>
               <ul class="addon-list">
-                <li><span>Domain (1 year)</span><b>J$3,000</b></li>
-                <li><span>Logo design</span><b>J$15,000</b></li>
-                <li><span>Google Analytics setup</span><b>J$5,000</b></li>
-                <li><span>Social media setup</span><b>J$10,000</b></li>
-                <li><span>Advanced SEO</span><b>J$9,000/mo</b></li>
+                <li><span>Domain (1 year)</span><b data-price="domain">J$3,000</b></li>
+                <li><span>Logo design</span><b data-price="logo">J$15,000</b></li>
+                <li data-addon="analytics"><span>Google Analytics setup</span><b data-price="addons.analytics.price">J$5,000</b></li>
+                <li data-addon="socials"><span>Social media setup</span><b data-price="addons.socials.price">J$10,000</b></li>
+                <li data-addon="advancedSeo"><span>Advanced SEO</span><b data-price="addons.advancedSeo.price" data-suffix="/mo">J$9,000/mo</b></li>
               </ul>
             </div>
           </div>
@@ -359,17 +360,16 @@
             Questions first? Reach out any time, or get your estimate and we'll
             follow up.
           </p>
-          <!-- Replace the placeholder number and email (also in the wa.me link) -->
           <div class="contact-actions">
-            <a href="https://wa.me/18760000000" class="btn" target="_blank" rel="noopener"
+            <a href="https://wa.me/18765060220" class="btn" target="_blank" rel="noopener"
               >Message on WhatsApp</a
             >
             <a href="quiz.html" class="btn btn-ghost js-quiz">Get an estimate</a>
           </div>
           <p>
-            Phone / WhatsApp: <a href="tel:+18760000000">+1 (876) 000-0000</a>
+            Phone / WhatsApp: <a href="tel:+18765060220">+1 (876) 506-0220</a>
           </p>
-          <p>Email: <a href="mailto:hello@example.com">hello@example.com</a></p>
+          <p>Email: <a href="mailto:jaheemstyle12@gmail.com">jaheemstyle12@gmail.com</a></p>
         </section>
       </main>
 
@@ -416,10 +416,12 @@
 
     <footer>
       <p>
-        &copy; <span id="year"></span> JD-Style and Design. All rights reserved.
+        &copy; <span id="year"></span> JD-Style and Design. All rights reserved. ·
+        <a href="terms.html">Terms and Conditions</a>
       </p>
     </footer>
 
+    <script src="js/store.js"></script>
     <script src="js/main.js"></script>
   </body>
 </html>

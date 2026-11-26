@@ -1,0 +1,243 @@
+/* ===== CLIENT INVOICE PAGE (pay an invoice) ===== */
+.pay-page {
+  max-width: 1150px;
+  margin: 0 auto;
+  padding: 1.5rem;
+  display: grid;
+  gap: 1.5rem;
+}
+.pay-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.pay-top a {
+  font-family: "Sora", sans-serif;
+  font-weight: 700;
+  color: var(--text);
+  text-decoration: none;
+}
+.pay-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+  gap: 1.5rem;
+  align-items: start;
+}
+.pay-box {
+  position: sticky;
+  top: 1.5rem;
+  padding: 1.4rem;
+  display: grid;
+  gap: 1rem;
+}
+.pay-box h2 {
+  font-size: 1.15rem;
+}
+.amount-due {
+  font-family: "Sora", sans-serif;
+  font-size: 2rem;
+  color: var(--gold);
+  line-height: 1.1;
+}
+
+/* Payment method choices */
+.methods {
+  display: grid;
+  gap: 0.6rem;
+}
+.method {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+  width: 100%;
+  font: inherit;
+  text-align: left;
+  color: var(--text);
+  padding: 0.85rem 1rem;
+  border-radius: 12px;
+  border: 1px solid var(--edge);
+  background: var(--card);
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+}
+.method:hover {
+  border-color: rgba(212, 169, 55, 0.6);
+}
+.method[aria-pressed="true"] {
+  border-color: var(--gold);
+  background: rgba(212, 169, 55, 0.12);
+}
+.method b {
+  display: block;
+}
+.method small {
+  color: var(--muted);
+}
+.marks {
+  display: flex;
+  gap: 0.3rem;
+  flex: none;
+}
+.mark {
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 0.2rem 0.45rem;
+  border-radius: 5px;
+  background: #fff;
+  color: #1a1f71;
+}
+.mark.mc {
+  color: #eb001b;
+}
+.mark.pp {
+  color: #003087;
+}
+.mark.lynk {
+  color: #fff;
+  background: #2b2b2b;
+}
+.mark.bank {
+  color: var(--green-deep);
+}
+
+.method-panel {
+  padding: 1rem;
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.18);
+  border: 1px solid var(--edge);
+  display: grid;
+  gap: 0.8rem;
+  font-size: 0.9rem;
+}
+.method-panel dl {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.3rem 1rem;
+}
+.method-panel dt {
+  color: var(--muted);
+}
+.method-panel dd {
+  font-weight: 600;
+  word-break: break-word;
+}
+.demo-note {
+  font-size: 0.78rem;
+  color: var(--warn);
+}
+
+/* Processing spinner */
+.spinner {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 3px solid rgba(255, 255, 255, 0.2);
+  border-top-color: var(--gold);
+  animation: spin 0.8s linear infinite;
+}
+.processing {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+.state-box {
+  padding: 1rem;
+  border-radius: 12px;
+  border: 1px solid rgba(242, 201, 76, 0.5);
+  background: rgba(242, 201, 76, 0.08);
+}
+.state-box.ok {
+  border-color: rgba(61, 220, 132, 0.5);
+  background: rgba(61, 220, 132, 0.08);
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 900px) {
+  .pay-layout {
+    grid-template-columns: 1fr;
+  }
+  .pay-box {
+    position: static;
+    order: -1;
+  }
+}
+@media (max-width: 560px) {
+  .pay-page {
+    padding: 0.75rem;
+  }
+}
+.pp-buttons {
+  min-height: 52px;
+  background: #fff;
+  border-radius: 12px;
+  padding: 0.6rem;
+}
+.pp-buttons .processing,
+.pp-buttons .demo-note {
+  color: #1c2b22;
+}
+
+/* Terms checkbox before paying */
+.agree {
+  display: flex;
+  gap: 0.6rem;
+  align-items: flex-start;
+  font-size: 0.85rem;
+  padding: 0.7rem 0.8rem;
+  border-radius: 12px;
+  border: 1px solid var(--edge);
+  background: rgba(0, 0, 0, 0.15);
+}
+.agree input {
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+  flex: none;
+  accent-color: var(--gold);
+}
+.agree.nudge {
+  animation: nudge 0.5s ease;
+  border-color: var(--gold);
+}
+.methods.locked .method {
+  opacity: 0.45;
+}
+@keyframes nudge {
+  20%,
+  60% {
+    transform: translateX(-6px);
+  }
+  40%,
+  80% {
+    transform: translateX(6px);
+  }
+}
+/* Refund request */
+.refund-ask {
+  border: 1px solid var(--edge);
+  border-radius: 12px;
+  padding: 0.8rem 1rem;
+  display: grid;
+  gap: 0.6rem;
+}
+.refund-ask summary {
+  cursor: pointer;
+  color: var(--gold);
+  font-weight: 600;
+}
+.refund-ask[open] {
+  display: grid;
+}
+.refund-ask .field,
+.refund-ask .btn,
+.refund-ask .hint {
+  margin-top: 0.6rem;
+}
