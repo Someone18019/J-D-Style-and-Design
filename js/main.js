@@ -49,11 +49,8 @@ const glidePairs = [
     document.querySelector(".hero .brand"),
     document.querySelector(".topbar-brand"),
   ],
-  [
-    document.querySelector(".hero .btn"),
-    document.querySelector(".topbar .btn"),
-  ],
 ];
+// (The top bar's Client login button stays put; only the brand glides.)
 const GLIDE_EASE = "cubic-bezier(0.22, 1, 0.36, 1)";
 const GLIDE_MS = 700;
 let glideTimer = null;

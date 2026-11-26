@@ -1,0 +1,128 @@
+/* ===== CLIENT PORTAL ===== */
+.portal {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 1.5rem;
+  display: grid;
+  gap: 1.5rem;
+}
+.portal > * {
+  animation: rise 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.portal > *:nth-child(2) { animation-delay: 0.06s; }
+.portal > *:nth-child(3) { animation-delay: 0.12s; }
+.portal > *:nth-child(4) { animation-delay: 0.18s; }
+.portal > *:nth-child(5) { animation-delay: 0.24s; }
+.portal > *:nth-child(n + 6) { animation-delay: 0.3s; }
+
+.portal-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+.portal-brand {
+  font-family: "Sora", sans-serif;
+  font-weight: 700;
+  color: var(--text);
+  text-decoration: none;
+}
+
+/* Sign in */
+.login {
+  width: min(420px, 100%);
+  margin: 4vh auto 0;
+  padding: 2rem;
+  display: grid;
+  gap: 1rem;
+}
+.login h1 {
+  font-size: 1.6rem;
+}
+.login .btn {
+  justify-content: center;
+}
+.form-error {
+  color: #ff8a8d;
+  font-size: 0.85rem;
+  min-height: 1.1em;
+}
+.hint.small {
+  font-size: 0.8rem;
+}
+.demo-note {
+  font-size: 0.75rem;
+  color: var(--warn);
+}
+
+.hello h1 {
+  font-size: 1.7rem;
+}
+.status-line {
+  margin-top: 1rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+/* Payment cards */
+.pay-list {
+  display: grid;
+  gap: 0.7rem;
+}
+.pay-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.9rem 1rem;
+  border-radius: 12px;
+  border: 1px solid rgba(212, 169, 55, 0.45);
+  background: rgba(212, 169, 55, 0.07);
+}
+.pay-card.waiting {
+  border-color: rgba(242, 201, 76, 0.5);
+}
+.pay-card.muted {
+  border-color: var(--edge);
+  background: var(--card);
+}
+.pay-card b {
+  display: block;
+}
+.pay-right {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  flex: none;
+}
+.pay-right strong {
+  font-family: "Sora", sans-serif;
+}
+.refund-note {
+  margin-top: 0.2rem;
+  font-size: 0.75rem;
+  color: #ffb36b;
+}
+.center {
+  text-align: center;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@media (max-width: 560px) {
+  .portal {
+    padding: 0.75rem;
+  }
+  .pay-card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

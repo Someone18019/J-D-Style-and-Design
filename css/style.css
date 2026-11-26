@@ -1249,3 +1249,29 @@ footer {
     transform: none !important;
   }
 }
+
+/* ===== CLIENT LOGIN (top right, always visible) ===== */
+.topbar .btn-login {
+  opacity: 1;
+  pointer-events: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  background: transparent;
+  color: var(--gold);
+  border: 1px solid var(--gold);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+.topbar .btn-login:hover {
+  background: var(--gold);
+  color: #1c2b22;
+}
+.btn-login svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+}

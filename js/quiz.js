@@ -803,6 +803,8 @@ function showConfirm(title, message, confirmText) {
 // Step colours: green = done, grey = not answered yet (including the current step),
 // red = Next pressed while empty and required, yellow = Next pressed while empty and optional
 function renderToolbar() {
+  // On the end screen, Next already says "Start over", so hide the top one
+  restartBtn.style.display = onFinalScreen ? "none" : "";
   const visible = visibleQuestions();
   stepsEl.innerHTML = "";
   for (let i = 0; i <= state.reached && i < visible.length; i++) {
@@ -1087,10 +1089,10 @@ backBtn.addEventListener("click", () => {
 // ===== END SCREEN: what's included, built from the answers =====
 function sectionHead(title, sub) {
   return (
-    '<h3 style="color:var(--green);margin:1.1rem 0 0.4rem">' +
+    '<h3 class="sum-head" style="color:var(--green);margin:1.1rem 0 0.4rem">' +
     title +
     (sub
-      ? ' <span style="font-size:0.85rem;font-weight:600;opacity:0.7">(' +
+      ? ' <span style="font-size:0.8rem;font-weight:400;opacity:0.7">(' +
         sub +
         ")</span>"
       : "") +
@@ -1099,12 +1101,12 @@ function sectionHead(title, sub) {
 }
 
 function goldLine() {
-  return '<div style="height:2px;background:var(--gold);border-radius:2px;margin:1rem 0 0.2rem"></div>';
+  return '<div style="height:1px;background:var(--gold);opacity:0.4;margin:1.1rem 0 0.2rem"></div>';
 }
 
 function listOf(lines) {
   return (
-    '<ul style="padding-left:1.2rem;display:grid;gap:0.4rem">' +
+    '<ul class="sum-list" style="padding-left:1.2rem;display:grid;gap:0.4rem">' +
     lines.map((t) => "<li>" + t + "</li>").join("") +
     "</ul>"
   );
@@ -1112,7 +1114,7 @@ function listOf(lines) {
 
 function tagText(tag) {
   return (
-    ' <span style="font-size:0.8rem;color:var(--gold);font-weight:600">' +
+    ' <span style="font-size:0.78rem;color:var(--gold);font-weight:400">' +
     tag +
     "</span>"
   );
@@ -1157,31 +1159,12 @@ function bonusLines() {
 }
 
 function buildSummary() {
-  const once = items.filter((it) => it.billing === "once" && it.amount >= 0);
   const recurring = items.filter((it) => it.billing === "recurring");
 
-  // 1. Primary payment
-  const extras = ["<strong>Two revisions</strong>" + tagText("Included")];
-  if (!(state.answers.enquiries || []).includes("contactForm")) {
-    extras.unshift(
-      "<strong>Contact form on your site</strong>" + tagText("Included"),
-    );
-  }
-  let html =
-    sectionHead("Primary payment", "one-time fee") +
-    listOf(
-      once
-        .map((it) => "<strong>" + it.name + "</strong>" + tagText(it.tag))
-        .concat(extras),
-    );
+  // 1. Primary payment: the estimate box moves in here and lists everything
+  //    (items, what's included free, and the three-part payment split)
+  let html = sectionHead("Primary payment", "one-time fee");
   html += '<div id="estimateSlot"></div>';   // estimator moves in here
-  // How the primary payment is split (matches SCHEDULE in js/store.js)
-  const pct = typeof Store !== "undefined" ? Store.SCHEDULE.map((x) => x.pct) : [15, 35, 50];
-  html += noticeBox(
-    "<strong>Paid in three parts:</strong> a " + pct[0] + "% commitment fee to start, " + pct[1] +
-      "% when your site is halfway done, and the final " + pct[2] +
-      "% on completion, when ownership of the site is handed over to you.",
-  );
   // Not part of the primary payment
   html += noticeBox(
     "<strong>Not included in the primary payment:</strong> extra revisions or bigger changes " +
@@ -1414,12 +1397,50 @@ function rowsFor(billing, small) {
     .join("");
 }
 
+// Included at no charge (shown in the estimate's primary payment)
+function includedRows() {
+  const rows = [];
+  if (!(state.answers.enquiries || []).includes("contactForm")) rows.push("Contact form on your site");
+  rows.push("Two revisions");
+  return rows
+    .map((name) => '<li><span>' + name + ' <span class="tag">Included</span></span><span class="est-price">Free</span></li>')
+    .join("");
+}
+
+// The primary payment split into three parts (matches SCHEDULE in js/store.js).
+// The final part takes any rounding, so the three add up to the total exactly.
+function scheduleRows() {
+  const total = totalFor("once");
+  if (total <= 0) return "";
+  const steps = typeof Store !== "undefined"
+    ? Store.SCHEDULE.map((x) => ({ label: x.label, pct: x.pct, when: x.when }))
+    : [
+        { label: "Commitment fee", pct: 15, when: "Due before work starts" },
+        { label: "Half-completion payment", pct: 35, when: "Due when the site is halfway done" },
+        { label: "Final payment", pct: 50, when: "Due on completion, before ownership is transferred" },
+      ];
+  const shares = steps.map((x) => Math.round((total * x.pct) / 100));
+  shares[2] = total - shares[0] - shares[1];
+  return (
+    '<li class="split-head"><span>Paid in three parts</span></li>' +
+    steps
+      .map(
+        (x, i) =>
+          '<li class="split-row"><span>' + (i + 1) + ". " + x.label + ' <span class="tag">' + x.pct + "%</span>" +
+          "<small>" + x.when + "</small></span>" + '<span class="est-price">' + format(shares[i]) + "</span></li>",
+      )
+      .join("")
+  );
+}
+
 function renderBreakdown() {
   // 1. Primary payment
   let html =
     '<li style="border:0;padding-top:0.8rem;font-weight:700;color:var(--green)">' +
     "Primary payment (website build)</li>" +
-    rowsFor("once", false);
+    rowsFor("once", false) +
+    includedRows() +
+    scheduleRows();
 
   // 2. Gold line, then recurring payments
   if (items.some((it) => it.billing === "recurring")) {
@@ -1677,11 +1698,11 @@ function clientBoxHTML() {
     return (
       goldLine() +
       '<section class="client-box done">' +
-      "<h2>Request sent</h2>" +
-      "<p>Thanks, " + Store.esc(c.name || c.business) + ". We'll contact you on " +
-      Store.esc(c.phone) + " to go over your site and confirm the price.</p>" +
-      '<p class="client-id">Your client ID <b>' + Store.esc(c.id) + "</b></p>" +
-      '<button type="button" class="nav-btn" id="updateEstimate">Send my updated estimate</button>' +
+      '<p class="client-id">Details saved · your client ID <b>' + Store.esc(c.id) + "</b></p>" +
+      '<p class="help">Your request reaches us once you send it on WhatsApp or by email.</p>' +
+      '<a class="nav-btn primary send-main" target="_blank" rel="noopener" data-send="whatsapp" href="#">Send on WhatsApp</a>' +
+      '<div class="send-more"><a data-send="email" href="#">Send by email instead</a>' +
+      '<button type="button" id="showSent">View my details</button></div>' +
       '<p class="fine">Client ID: ' + Store.esc(c.id) + "</p></section>"
     );
   }
@@ -1689,8 +1710,8 @@ function clientBoxHTML() {
     goldLine() +
     '<section class="client-box">' +
     "<h2>Send your request</h2>" +
-    '<p class="help">Leave your details and we\'ll reach out to go over your site. ' +
-    "You'll get a client ID to quote when you contact us.</p>" +
+    '<p class="help">Enter your details to get a client ID, then send your request to us on WhatsApp or by email ' +
+    "with your estimate filled in.</p>" +
     '<form id="clientForm" novalidate>' +
     '<label>Your name<input name="name" autocomplete="name" /></label>' +
     '<label>Business or group name <small>(if any)</small><input name="business" autocomplete="organization" /></label>' +
@@ -1699,7 +1720,7 @@ function clientBoxHTML() {
     '<label class="agree"><input type="checkbox" name="agree" /> I have read and agree to the ' +
     '<a href="terms.html" target="_blank" rel="noopener">Terms and Conditions</a></label>' +
     '<p class="form-error" id="clientError" role="alert"></p>' +
-    '<button type="submit" class="nav-btn primary">Send request</button>' +
+    '<button type="submit" class="nav-btn primary">Save details and get my client ID</button>' +
     "</form></section>"
   );
 }
@@ -1752,22 +1773,119 @@ stage.addEventListener("submit", (e) => {
   state.clientId = client.id;
   save();
   renderEndContent();
+  showRequestSent(client);
 });
 
-// Already sent: push the latest estimate to their client record
-stage.addEventListener("click", (e) => {
-  if (e.target.id !== "updateEstimate") return;
-  Store.update((data) => {
-    const c = data.clients.find((x) => x.id === state.clientId);
-    if (c) {
-      c.estimate = estimateSnapshot();
-      c.plan = hasRecurring(state.answers) ? planLabel() : "";
-      c.planKey = hasRecurring(state.answers) ? state.answers.paymentPlan || "" : "";
-      c.updatedAt = new Date().toISOString();
+// ===== SENDING THE REQUEST =====
+// No server here, so the request goes out through the client's own WhatsApp
+// or email app, with everything filled in.
+function requestText(c) {
+  const s = Store.load().settings;
+  const type = SITE_TYPE_OPTIONS.find((o) => o.value === state.answers.siteType);
+  const once = totalFor("once");
+  const lines = [
+    "Hi " + s.businessName + ", I'd like to request a website.",
+    "",
+    "Client ID: " + c.id,
+    "Name: " + (c.name || "-"),
+    c.business ? "Business: " + c.business : "",
+    "Phone: " + c.phone,
+    c.email ? "Email: " + c.email : "",
+    type ? "Site type: " + type.label : "",
+    "",
+    "Estimate (primary payment): " + format(once),
+    ...items.filter((it) => it.billing === "once" && it.amount !== null).map((it) => "- " + it.name + ": " + (it.amount ? format(it.amount) : "Free")),
+  ];
+  if (hasRecurring(state.answers)) {
+    lines.push("", "Recurring: " + recurringAmount() + " (" + planLabel() + ")");
+  }
+  return lines.filter((l, i, a) => l !== "" || a[i - 1] !== "").join("\n");
+}
+
+function whatsappLink(c) {
+  const digits = Store.load().settings.phone.replace(/\D/g, "");
+  return "https://wa.me/" + digits + "?text=" + encodeURIComponent(requestText(c));
+}
+
+function emailLink(c) {
+  const s = Store.load().settings;
+  return (
+    "mailto:" + s.email + "?subject=" + encodeURIComponent("Website request · " + c.id) +
+    "&body=" + encodeURIComponent(requestText(c))
+  );
+}
+
+// ===== "DETAILS SAVED" WINDOW =====
+function showRequestSent(c) {
+  const esc = Store.esc;
+  const overlay = document.createElement("div");
+  overlay.className = "sent-overlay";
+  overlay.innerHTML =
+    '<div class="sent-box" role="dialog" aria-modal="true" aria-labelledby="sentTitle">' +
+    '<svg class="sent-tick" viewBox="0 0 52 52" aria-hidden="true"><circle cx="26" cy="26" r="24"/><path d="M15 27l7 7 15-15"/></svg>' +
+    '<h2 id="sentTitle">Your details are saved</h2>' +
+    "<p>Thanks, " + esc(c.name || c.business) + ". <b>One more step:</b> send your request to us so we can " +
+    "go over your site and confirm the price. Your client ID and estimate are filled in for you.</p>" +
+    '<div class="sent-id"><span>Your client ID</span><b>' + esc(c.id) + "</b>" +
+    '<button type="button" class="copy-id" data-copy="' + esc(c.id) + '">Copy</button></div>' +
+    '<a class="nav-btn primary send-main" target="_blank" rel="noopener" data-send="whatsapp" href="#">Send on WhatsApp</a>' +
+    '<div class="send-more"><a data-send="email" href="#">Send by email instead</a>' +
+    '<button type="button" data-close>Close</button></div>' +
+    '<p class="sent-note">Keep this ID. Quote it when you contact us, and use it to log in and check your project.</p>' +
+    '<p class="fine">Client ID: ' + esc(c.id) + "</p></div>";
+  document.body.appendChild(overlay);
+  requestAnimationFrame(() => overlay.classList.add("open"));
+  const before = document.activeElement;
+  overlay.querySelector("[data-close]").focus();
+
+  function close() {
+    overlay.classList.remove("open");
+    document.removeEventListener("keydown", onKey);
+    setTimeout(() => overlay.remove(), 250);
+    if (before && before.focus) before.focus();
+  }
+  function onKey(e) {
+    if (e.key === "Escape") close();
+  }
+  document.addEventListener("keydown", onKey);
+  overlay.addEventListener("click", (e) => {
+    if (e.target === overlay || e.target.closest("[data-close]")) return close();
+    const copy = e.target.closest("[data-copy]");
+    if (copy) {
+      navigator.clipboard.writeText(copy.dataset.copy).then(
+        () => (copy.textContent = "Copied ✓"),
+        () => (copy.textContent = "Select and copy"),
+      );
     }
   });
-  e.target.textContent = "Estimate updated ✓";
-  e.target.disabled = true;
+}
+
+// Already sent: reopen the confirmation window
+stage.addEventListener("click", (e) => {
+  if (e.target.id === "showSent") {
+    const c = currentClient();
+    if (c) showRequestSent(c);
+  }
+});
+
+// Sending: build the WhatsApp / email link from the current estimate,
+// and save that estimate to the client record at the same time
+document.addEventListener("click", (e) => {
+  const send = e.target.closest("[data-send]");
+  if (!send) return;
+  let client = null;
+  Store.update((data) => {
+    const c = data.clients.find((x) => x.id === state.clientId);
+    if (!c) return;
+    c.estimate = estimateSnapshot();
+    c.plan = hasRecurring(state.answers) ? planLabel() : "";
+    c.planKey = hasRecurring(state.answers) ? state.answers.paymentPlan || "" : "";
+    c.updatedAt = new Date().toISOString();
+    c.openedSend = { via: send.dataset.send, at: c.updatedAt };
+    client = { ...c };
+  });
+  if (!client) return e.preventDefault();
+  send.href = send.dataset.send === "whatsapp" ? whatsappLink(client) : emailLink(client);
 });
 
 // ===== EDIT MODE: Back cancels, Next returns to the end =====

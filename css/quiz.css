@@ -682,3 +682,225 @@ body::before {
 #clientForm .agree a {
   color: var(--gold);
 }
+
+/* ===== "REQUEST SENT" WINDOW ===== */
+.client-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+.sent-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: rgba(0, 30, 15, 0.6);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+.sent-overlay.open {
+  opacity: 1;
+}
+.sent-box {
+  width: min(440px, 100%);
+  padding: 2rem 1.75rem 1.5rem;
+  border-radius: 20px;
+  text-align: center;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.03)),
+    rgba(6, 38, 26, 0.92);
+  border: 1px solid var(--edge);
+  border-top: 4px solid var(--gold);
+  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.45);
+  transform: translateY(16px) scale(0.95);
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.sent-overlay.open .sent-box {
+  transform: none;
+}
+.sent-box h2 {
+  color: var(--gold);
+  font-size: 1.5rem;
+  margin: 0.6rem 0 0.4rem;
+}
+.sent-box p {
+  color: var(--text);
+}
+/* Animated tick */
+.sent-tick {
+  width: 64px;
+  height: 64px;
+  fill: none;
+  stroke: var(--gold);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.sent-tick circle {
+  stroke-dasharray: 151;
+  stroke-dashoffset: 151;
+}
+.sent-tick path {
+  stroke-dasharray: 36;
+  stroke-dashoffset: 36;
+}
+.sent-overlay.open .sent-tick circle {
+  animation: draw 0.6s ease forwards 0.1s;
+}
+.sent-overlay.open .sent-tick path {
+  animation: draw 0.35s ease forwards 0.6s;
+}
+@keyframes draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+.sent-id {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin: 1.2rem 0 0.6rem;
+  padding: 0.8rem;
+  border-radius: 12px;
+  border: 1px dashed rgba(212, 169, 55, 0.6);
+  background: rgba(212, 169, 55, 0.08);
+}
+.sent-id span {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+.sent-id b {
+  font-family: "Sora", sans-serif;
+  font-size: 1.35rem;
+  letter-spacing: 0.08em;
+  color: var(--gold);
+}
+.copy-id {
+  font: inherit;
+  font-size: 0.75rem;
+  padding: 0.25rem 0.7rem;
+  border-radius: 20px;
+  border: 1px solid var(--gold);
+  background: none;
+  color: var(--gold);
+  cursor: pointer;
+}
+.sent-note {
+  font-size: 0.82rem;
+  opacity: 0.8;
+}
+.sent-actions {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.2rem;
+}
+.sent-actions a {
+  text-decoration: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .sent-overlay,
+  .sent-box {
+    transition: none;
+  }
+  .sent-tick circle,
+  .sent-tick path {
+    stroke-dashoffset: 0;
+    animation: none !important;
+  }
+}
+
+/* ===== PAYMENT SPLIT INSIDE THE ESTIMATE ===== */
+#breakdown .split-head {
+  border: 0;
+  margin-top: 0.6rem;
+  padding-top: 0.7rem;
+  border-top: 1px dashed var(--edge);
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--gold);
+}
+#breakdown .split-row {
+  font-size: 0.85rem;
+}
+#breakdown .split-row small {
+  display: block;
+  font-size: 0.72rem;
+  opacity: 0.65;
+}
+
+/* ===== END SCREEN: lighter section headings and lists ===== */
+.q-card h3.sum-head {
+  font-size: 1.05rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+.sum-list strong {
+  font-weight: 600;
+}
+
+/* Send buttons in the "details saved" window */
+.sent-send {
+  display: grid;
+  gap: 0.6rem;
+  margin: 0.4rem 0 0.8rem;
+}
+.sent-send .nav-btn {
+  display: block;
+  text-align: center;
+  text-decoration: none;
+}
+.client-actions a {
+  text-decoration: none;
+}
+.sent-link {
+  font: inherit;
+  font-size: 0.85rem;
+  background: none;
+  border: 0;
+  color: var(--gold);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* Client ID under the estimate: same inner spacing as the note above it */
+#clientFine {
+  margin: -0.4rem 0 0;
+  padding: 0 1.1rem 0.9rem;
+}
+
+/* Send area: one main button, two smaller options under it */
+.send-main {
+  display: block;
+  width: 100%;
+  text-align: center;
+  text-decoration: none;
+  padding: 0.85rem 1rem;
+  font-size: 1rem;
+}
+.send-more {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.25rem;
+  margin-top: 0.7rem;
+}
+.send-more a,
+.send-more button {
+  font: inherit;
+  font-size: 0.85rem;
+  background: none;
+  border: 0;
+  padding: 0.2rem 0;
+  color: var(--gold);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
